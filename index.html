@@ -181,7 +181,36 @@ footer{margin-top:72px;padding-top:18px;border-top:1px solid var(--line);color:v
 .cnote span{color:var(--mute);font-size:13.5px}
 .cbtn{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){#cel,.cel-card,.cel-card *{animation:none!important}.badge::before,.badge::after{display:none}.badge path{stroke-dashoffset:0}.cel-card::before{display:none}}
+#rst{position:fixed;inset:0;z-index:100;display:flex;padding:20px;background:rgba(8,10,14,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fade .3s ease both;overflow-y:auto}
+#rst[hidden],#toast[hidden]{display:none}
+#rstcard{text-align:left}#rstcard h2{margin:0 0 8px;font-size:26px;letter-spacing:-.03em;font-weight:600}
+#rstcard p{color:var(--mute);margin:0 0 16px}
+.word{display:block;font-size:26px;font-weight:600;letter-spacing:.14em;text-align:center;padding:14px;border:1px dashed var(--line);border-radius:6px;background:var(--bg);margin-bottom:14px;user-select:none}
+#rstcard input{width:100%;font:inherit;font-size:18px;padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);outline:0}
+#rstcard input:focus{border-color:var(--accent)}
+.danger{border-color:#c93c3c;color:#c93c3c}
+.go.danger{background:#c93c3c;color:#fff;border:0}.go.danger:disabled{opacity:.4}
+.dz{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:24px;border-color:#c93c3c66}
+.dz h3{margin:0 0 6px}.dz p{margin:0;color:var(--mute);font-size:14.5px;max-width:56ch}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);z-index:110;background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:6px;font-size:15px;animation:up .4s ease both;max-width:calc(100% - 32px)}
+#pg-shop{margin-top:56px}#pg-shop>h2{font-size:clamp(26px,3.4vw,36px);letter-spacing:-.03em;margin:0 0 6px;font-weight:600}#pg-shop>p{color:var(--mute);margin:0 0 24px;max-width:60ch}
+.balance{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:20px;margin-bottom:8px}
+.balance span{color:var(--mute);font-size:14px;display:block}
+.balance b{display:block;font-size:clamp(38px,6vw,60px);letter-spacing:-.04em;font-weight:600;line-height:1.05}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:24px}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.item.own{border-color:var(--accent)}
+.ihead{display:flex;gap:14px;align-items:center}
+.ihead b{font-weight:600;font-size:17px;letter-spacing:-.01em}
+.ihead p,.item .x{margin:2px 0 0;color:var(--mute);font-size:14px}
+.dots{display:flex;gap:4px}.dots i{width:18px;height:18px;border-radius:50%;border:1px solid var(--line)}
+.ibuy{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.price{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.tag{border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:14px;color:var(--mute)}
+.buy{min-height:40px;padding:8px 16px;font-size:14.5px}
+.big{flex:none;width:48px;height:48px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;background:var(--bg)}
 @media (max-width:760px){
+.dz{flex-direction:column;align-items:flex-start}
 .cstats{grid-template-columns:1fr}.cel-card{padding:28px 18px 20px}
 #dbar{flex-wrap:wrap;gap:10px}.dinfo{flex:1 1 55%}.dstats{gap:16px}.dbtn{width:100%}.dbtn button{flex:1}
 .me2{grid-template-columns:1fr}.set{align-items:flex-start}
@@ -204,7 +233,7 @@ header .nav{gap:14px}
 </head>
 <body>
 <div class="wrap">
-<header><b>Briefo</b><nav class="nav"><a href="#/" data-r="home">Roulette</a><a href="#/jobs" data-r="jobs">Your Jobs <em id="jc">0</em></a><a href="#/me" data-r="me">Me</a><button class="ghost sm" id="th" type="button">Dark mode</button></nav></header>
+<header><b>Briefo</b><nav class="nav"><a href="#/" data-r="home">Roulette</a><a href="#/jobs" data-r="jobs">Your Jobs <em id="jc">0</em></a><a href="#/shop" data-r="shop">Shop</a><a href="#/me" data-r="me">Me</a><button class="ghost sm" id="th" type="button">Dark mode</button></nav></header>
 <div id="pg-home"><div id="dbar" hidden role="region" aria-label="Briefo details"></div><div class="hero"><h1>Spin for your next brief.</h1>
 <p class="lede">A fictional client, a job and a deadline are drawn at random. Then the full brief is written for you: goals, palette, tone and schedule.</p></div>
 
@@ -229,10 +258,16 @@ header .nav{gap:14px}
 <div class="stats" id="stats"></div></div>
 <div class="worth" id="worth"></div>
 <div class="me2"><div class="card set"><div><h3>Briefo details</h3><p>A bar that stays at the top of the page once a brief is generated. It shows the client, job, deadline and pay, with Accept and Decline buttons.</p></div><button class="tgl" id="tg" type="button" role="switch" aria-checked="true" aria-label="Briefo details"><i></i></button></div>
-<div class="card ver"><span>Briefo</span><b>Version 1.7</b></div></div></div>
+<div class="card ver"><span>Briefo</span><b>Version 2.0</b></div></div>
+<div class="card dz"><div><h3>Reset Briefo</h3><p>Erases every job, all earnings, purchases, your rate and every preference. This cannot be undone.</p></div><button class="ghost danger" id="rsb" type="button">Reset Briefo</button></div></div>
+<div id="pg-shop" hidden><h2>Briefo Shop</h2><p>Spend what you earn. New clients, jobs and longer deadlines join your roulette as soon as you buy them.</p>
+<div class="balance"><div><span>Balance</span><b id="bal">$0</b></div><em id="balsub"></em></div>
+<div class="tabs" id="stabs"></div><div class="shopgrid" id="sgrid"></div></div>
 <footer><span>Briefo</span><span>Clients are fictional. Your data stays in this browser.</span></footer>
 </div>
 
+<div id="rst" hidden><div class="cel-card" id="rstcard" role="dialog" aria-modal="true" aria-labelledby="rst-t"></div></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
 <div id="cel" hidden><div class="cel-card" id="celcard" role="dialog" aria-modal="true" aria-labelledby="cel-t"></div><canvas id="cv" aria-hidden="true"></canvas></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -258,7 +293,17 @@ const C=[
 {n:"Meridian Health",ind:"Telehealth platform",tag:"Care that comes to you.",pal:["#0e4d5c","#5ec9c0","#d6f2ee","#f5fbfa","#f0725c"],tone:["Caring","Clear","Trustworthy"],aud:"Adults managing everyday and chronic care",like:["Plain-language interfaces","Diverse, real people"],avoid:["Clinical coldness","Alarming red states"]},
 {n:"Ferrous Records",ind:"Independent vinyl label",tag:"Pressed to be played loud.",pal:["#1b1b1f","#d64545","#e8e6df","#f7f5f0","#e3b23c"],tone:["Raw","Authentic","Loud"],aud:"Collectors and music-scene regulars",like:["Screenprint textures","Oversized type"],avoid:["Slick gradients","Streaming-app aesthetics"]},
 {n:"Alto Homes",ind:"Real estate marketplace",tag:"Find the place that fits.",pal:["#2b3a2f","#b7c9a8","#e6efdc","#f8f8f2","#d98f4e"],tone:["Reassuring","Open","Practical"],aud:"First-time buyers and renters aged 25-40",like:["Bright interiors","Map-first search"],avoid:["Pushy urgency banners","Cluttered listings"]},
-{n:"Noctua Books",ind:"Independent bookstore",tag:"Books for the late hours.",pal:["#1e2140","#c9a86a","#e7e3f5","#faf8f2","#7f8de6"],tone:["Literary","Intimate","Curious"],aud:"Readers and local community members",like:["Serif-led typography","Staff recommendations"],avoid:["Big-box retail feel","Aggressive discounts"]}
+{n:"Noctua Books",ind:"Independent bookstore",tag:"Books for the late hours.",pal:["#1e2140","#c9a86a","#e7e3f5","#faf8f2","#7f8de6"],tone:["Literary","Intimate","Curious"],aud:"Readers and local community members",like:["Serif-led typography","Staff recommendations"],avoid:["Big-box retail feel","Aggressive discounts"]},
+{shop:1,id:"c:aurelia",price:320,n:"Aurelia Maison",ind:"Luxury jewelry house",tag:"Made once. Worn always.",pal:["#1c1712","#d4b06a","#efe2c4","#faf6ee","#8a2f3c"],tone:["Luxurious","Refined","Timeless"],aud:"Jewelry collectors and gift buyers",like:["Macro photography","Serif elegance"],avoid:["Discount language","Flashy effects"]},
+{shop:1,id:"c:kestrel",price:700,n:"Kestrel Aerospace",ind:"Space and aviation engineering",tag:"Reach is a design problem.",pal:["#0a1224","#8fb4ff","#d7e3ff","#f2f5fb","#ff6a3d"],tone:["Ambitious","Precise","Visionary"],aud:"Engineers, investors and government partners",like:["Technical illustration","Large-scale imagery"],avoid:["Sci-fi clichés","Vague claims"]},
+{shop:1,id:"c:pixelharbor",price:380,n:"Pixel Harbor Studios",ind:"Animation studio",tag:"Frames with feeling.",pal:["#231942","#ffb86b","#ff7eb6","#fff4e6","#5ce1e6"],tone:["Imaginative","Warm","Playful"],aud:"Film festivals, streamers and family audiences",like:["Character-led visuals","Rich color"],avoid:["Generic stock textures","Cold layouts"]},
+{shop:1,id:"c:oaken",price:260,n:"Oaken & Vale",ind:"Craft distillery",tag:"Aged with patience.",pal:["#2e1f14","#c68b4a","#e8d3b0","#f8f1e4","#4d6b4a"],tone:["Heritage","Crafted","Grounded"],aud:"Whiskey enthusiasts and hospitality buyers",like:["Label typography","Warm, low-light photography"],avoid:["Party imagery","Neon colors"]},
+{shop:1,id:"c:helios",price:340,n:"Helios Solar",ind:"Residential solar installer",tag:"Your roof, working harder.",pal:["#0f2a3f","#ffc93c","#ffe9a6","#f4f8fb","#2fb8a3"],tone:["Optimistic","Practical","Clear"],aud:"Homeowners aged 30-60",like:["Savings calculators","Real installation photos"],avoid:["Greenwashing clichés","Technical overload"]},
+{shop:1,id:"c:sable",price:450,n:"Sable Fashion House",ind:"Haute couture label",tag:"Quiet luxury, loud craft.",pal:["#111111","#e7e2d9","#a39a8c","#f7f4ee","#c1272d"],tone:["Elegant","Daring","Restrained"],aud:"Fashion editors and high-end clients",like:["Editorial layouts","Generous whitespace"],avoid:["Logo-heavy design","Trend-chasing effects"]},
+{shop:1,id:"c:quantum",price:520,n:"Quantum Bloom",ind:"Biotech research company",tag:"Growing better questions.",pal:["#0d2b2a","#6ee7b7","#b8f5dc","#f0fbf7","#f472b6"],tone:["Curious","Rigorous","Hopeful"],aud:"Scientists, investors and clinical partners",like:["Abstract data forms","Clear scientific hierarchy"],avoid:["Lab-coat stock photos","Overpromising"]},
+{shop:1,id:"c:tempo",price:280,n:"Tempo Festival",ind:"Three-day music festival",tag:"Feel the whole weekend.",pal:["#2b0a3d","#ff5d8f","#ffd166","#fff1f6","#4cc9f0"],tone:["Electric","Inclusive","Loud"],aud:"Festival-goers aged 18-32",like:["Bold poster typography","Motion-friendly systems"],avoid:["Muted palettes","Dense ticket tables"]},
+{shop:1,id:"c:cascade",price:240,n:"Cascade Outdoor",ind:"Outdoor gear brand",tag:"Built for the long way up.",pal:["#12332b","#8fd1a4","#d6f0dd","#f5faf6","#f0a04b"],tone:["Rugged","Honest","Adventurous"],aud:"Hikers, climbers and campers",like:["Action photography","Durable, simple layouts"],avoid:["Polished studio shots only","Fashion-first tone"]},
+{shop:1,id:"c:ridgeline",price:600,n:"Ridgeline Capital",ind:"Growth-stage venture fund",tag:"Patient capital, sharp eyes.",pal:["#141b24","#b7c4d6","#7d8ea6","#f3f5f8","#d4a94a"],tone:["Authoritative","Calm","Discerning"],aud:"Founders and institutional investors",like:["Understated typography","Case-study storytelling"],avoid:["Stock handshakes","Hype language"]}
 ];
 const J=[
 {t:"Design a new website",d:["Sitemap and wireframes for 5 key pages","High-fidelity homepage and 2 inner pages","Responsive behavior for desktop and mobile","Basic component and style guide"]},
@@ -292,9 +337,19 @@ const J=[
 {t:"Design a voice assistant identity",d:["Visual states for listening and thinking","Sound and motion principles","Companion app screens","Personality guidelines"]},
 {t:"Design a car dashboard interface",d:["Driver display layouts","Center screen navigation","Day and night themes","Safety and glance-time notes"]},
 {t:"Design a magazine issue",d:["Grid and typographic system","Cover and three feature spreads","Photography art direction","Print specification sheet"]},
-{t:"Create a custom icon set",d:["Icon grid and stroke rules","40 core icons","Three sizes and two weights","SVG export and usage notes"]}
+{t:"Create a custom icon set",d:["Icon grid and stroke rules","40 core icons","Three sizes and two weights","SVG export and usage notes"]},
+{shop:1,id:"j:luxshop",price:300,t:"Design a luxury e-commerce experience",d:["Homepage and collection pages","Product story and detail pages","Concierge and checkout flow","Mobile and tablet layouts"]},
+{shop:1,id:"j:rebrand",price:450,t:"Deliver a full rebrand system",d:["Brand strategy summary","Identity system and guidelines","Launch campaign key visual","Five real-world applications"]},
+{shop:1,id:"j:arshow",price:380,t:"Design an AR product showcase",d:["Interaction concept and storyboard","Three AR scene layouts","Onboarding and gesture guide","Interactive prototype"]},
+{shop:1,id:"j:flagship",price:420,t:"Design a flagship app end to end",d:["Research summary and user flows","20+ high-fidelity screens","Design system starter kit","Developer handoff notes"]},
+{shop:1,id:"j:viz3d",price:340,t:"Create a 3D product visualization kit",d:["Lighting and material style guide","Hero product render set","Social and web crops","Editable scene template"]},
+{shop:1,id:"j:museum",price:360,t:"Design a museum exhibition experience",d:["Visitor journey and floor concept","Wall graphics and labels","Interactive kiosk screens","Print and digital guide"]},
+{shop:1,id:"j:investor",price:260,t:"Design an investor relations microsite",d:["Financial data layouts","Interactive performance charts","Downloadable report pages","Accessibility review"]},
+{shop:1,id:"j:explainer",price:220,t:"Storyboard an animated explainer",d:["Script-aligned storyboard","Style frames","Character or icon set","Motion direction notes"]},
+{shop:1,id:"j:smarthome",price:300,t:"Design a smart home control app",d:["Device dashboard and room views","Automation builder","Voice and widget states","Prototype of key scenarios"]},
+{shop:1,id:"j:unboxing",price:280,t:"Create a packaging and unboxing experience",d:["Outer box and inner layers","Insert cards and tissue print","Unboxing sequence storyboard","Dieline and print specs"]}
 ];
-const T=[[3,"3 days"],[5,"5 days"],[7,"1 week"],[10,"10 days"],[14,"2 weeks"],[21,"3 weeks"],[28,"4 weeks"],[1,"1 day"],[2,"2 days"],[35,"5 weeks"],[42,"6 weeks"],[60,"2 months"],[75,"10 weeks"],[90,"3 months"],[120,"4 months"],[150,"5 months"],[180,"6 months"],[365,"1 year"]];
+const T=[[3,"3 days"],[5,"5 days"],[7,"1 week"],[10,"10 days"],[14,"2 weeks"],[21,"3 weeks"],[28,"4 weeks"],[1,"1 day"],[2,"2 days"],[35,"5 weeks"],[42,"6 weeks"],[60,"2 months"],[75,"10 weeks"],[90,"3 months"],[120,"4 months"],[150,"5 months"],[180,"6 months"],[210,"7 months",900,"t:210"],[240,"8 months",1100,"t:240"],[270,"9 months",1300,"t:270"],[300,"10 months",1500,"t:300"],[365,"1 year",1900,"t:365"],[450,"15 months",2400,"t:450"],[540,"18 months",3000,"t:540"],[730,"2 years",4200,"t:730"],[1095,"3 years",6500,"t:1095"],[1825,"5 years",11000,"t:1825"]];
 const G=["Increase brand recognition among the core audience","Improve clarity and reduce time to first action","Signal quality and reliability at first glance","Differentiate from the three closest competitors","Create a system the in-house team can extend","Lift conversion on the primary call to action","Build a consistent look across every touchpoint"];
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const $=id=>document.getElementById(id);
@@ -320,13 +375,14 @@ $('go').onclick=async()=>{
   if(busy)return;busy=true;$('go').disabled=true;$('go').blur();
   $('brief').classList.remove('show');$('dbar').hidden=true;curBar=null;
   ['r0','r1','r2'].forEach(i=>$(i).classList.remove('on'));
-  const c=rnd(C),j=rnd(J),t=rnd(T);
+  const AC=C.filter(x=>!x.shop||own(x.id)),AJ=J.filter(x=>!x.shop||own(x.id)),AT=T.filter(x=>!x[3]||own(x[3]));
+  const c=rnd(AC),j=rnd(AJ),t=rnd(AT);
   $('st').textContent='Choosing client…';
-  await spin('r0',C.map(x=>x.n),c.n,2000);
+  await spin('r0',AC.map(x=>x.n),c.n,2000);
   $('st').textContent='Choosing job…';
-  await spin('r1',J.map(x=>x.t),j.t,2000);
+  await spin('r1',AJ.map(x=>x.t),j.t,2000);
   $('st').textContent='Setting deadline…';
-  await spin('r2',T.map(x=>x[1]),t[1],2200);
+  await spin('r2',AT.map(x=>x[1]),t[1],2200);
   $('st').textContent='Brief ready.';
   const goals=[...G].sort(()=>Math.random()-.5).slice(0,3);
   render(c,j,t,goals);
@@ -339,7 +395,7 @@ function render(c,j,t,goals,el,saved,at){el=el||$("brief");at=at||Date.now();
   const D=t[0];const earnTxt=rate.v>0?`You earn <strong>${money(payout(D))}</strong>`:'<a href="#/me">Set your rate</a> to see earnings';
   const ph=[["Research and direction",.2],["Concepts",.25],["Production",.4],["Review and handoff",.15]];
   const sh=D<=2,base=sh?D*24:D;let used=0;const days=ph.map((p,i)=>{let d=i<3?(sh?Math.max(1,Math.round(base*p[1])):Math.max(.5,Math.round(base*p[1]*2)/2)):base-used;used+=d;return d});
-  const fmt=d=>sh?d+" hours":d===1?"1 day":d>=14?(Math.round(d/7*2)/2)+" weeks":d+" days";
+  const fmt=d=>sh?d+" hours":d===1?"1 day":d>=90?(Math.round(d/30*2)/2)+" months":d>=14?(Math.round(d/7*2)/2)+" weeks":d+" days";
   const roles=["Primary","Secondary","Accent","Surface","Ink"];
   const sw=c.pal.map((h,i)=>`<button class="sw" style="background:${h};color:${lum(h)>.6?'#111':'#fff'}" data-hex="${h}" title="Copy ${h}"><b>${roles[i]}</b>${h.toUpperCase()}</button>`).join('');
   el.innerHTML=`
@@ -447,7 +503,17 @@ const GL=[
 (a,b)=>`<circle cx="20" cy="20" r="11" fill="none" stroke="${a}" stroke-width="3"/><path d="M20 14v12M14 20h12" stroke="${b}" stroke-width="3"/>`,
 (a,b)=>`<circle cx="20" cy="20" r="11" fill="${a}"/><circle cx="20" cy="20" r="4" fill="${b}"/><circle cx="20" cy="20" r="7" fill="none" stroke="${b}" stroke-width=".8"/>`,
 (a,b)=>`<path d="M9 21L20 10l11 11v10H9z" fill="${a}"/><rect x="17" y="23" width="6" height="8" fill="${b}"/>`,
-(a,b)=>`<path d="M26 10a11 11 0 100 20 9 9 0 010-20z" fill="${a}"/><circle cx="28" cy="15" r="1.8" fill="${b}"/>`];
+(a,b)=>`<path d="M26 10a11 11 0 100 20 9 9 0 010-20z" fill="${a}"/><circle cx="28" cy="15" r="1.8" fill="${b}"/>`,
+(a,b)=>`<path d="M12 15l4-5h8l4 5-8 15z" fill="${a}"/><path d="M12 15h16M16 10l4 20 4-20" stroke="${b}" stroke-width="1.4" fill="none"/>`,
+(a,b)=>`<path d="M20 7l7 22-7-5-7 5z" fill="${a}"/><circle cx="20" cy="17" r="2.2" fill="${b}"/>`,
+(a,b)=>`<rect x="10" y="20" width="9" height="9" fill="${a}"/><rect x="21" y="11" width="9" height="9" fill="${b}"/><rect x="21" y="22" width="9" height="7" fill="${a}"/>`,
+(a,b)=>`<ellipse cx="20" cy="20" rx="11" ry="12" fill="${a}"/><path d="M10 15h20M10 25h20" stroke="${b}" stroke-width="2"/>`,
+(a,b)=>`<path d="M9 28l3-12h16l3 12z" fill="${a}"/><path d="M15 16l-2 12M20 16v12M25 16l2 12M10 22h20" stroke="${b}" stroke-width="1.4"/>`,
+(a,b)=>`<path d="M27 12c-6-4-14 0-9 6s3 10-5 10" stroke="${a}" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="29" cy="29" r="2.2" fill="${b}"/>`,
+(a,b)=>`<circle cx="20" cy="20" r="3" fill="${b}"/><ellipse cx="20" cy="20" rx="12" ry="4.5" fill="none" stroke="${a}" stroke-width="2"/><ellipse cx="20" cy="20" rx="12" ry="4.5" fill="none" stroke="${a}" stroke-width="2" transform="rotate(60 20 20)"/><ellipse cx="20" cy="20" rx="12" ry="4.5" fill="none" stroke="${a}" stroke-width="2" transform="rotate(-60 20 20)"/>`,
+(a,b)=>`<rect x="9" y="17" width="3.5" height="6" fill="${a}"/><rect x="14.5" y="12" width="3.5" height="16" fill="${b}"/><rect x="20" y="8" width="3.5" height="24" fill="${a}"/><rect x="25.5" y="13" width="3.5" height="14" fill="${b}"/>`,
+(a,b)=>`<path d="M6 30l10-18 6 10 4-6 8 14z" fill="${a}"/><circle cx="29" cy="11" r="2.5" fill="${b}"/>`,
+(a,b)=>`<path d="M9 30v-7M16 30v-12M23 30v-17M30 30v-21" stroke="${a}" stroke-width="4"/><path d="M9 20l7-5 7-5 7-4" stroke="${b}" stroke-width="2" fill="none"/>`];
 function logo(c,s){
   const p=c.pal;let a=p[1],m=0;
   [1,2,3].forEach(i=>{const d=Math.abs(lum(p[i])-lum(p[0]));if(d>m){m=d;a=p[i]}});
@@ -482,7 +548,8 @@ const perDay=()=>rate.unit==='day'?rate.v:rate.v*rate.h;
 const perHour=()=>rate.unit==='day'?rate.v/rate.h:rate.v;
 const payout=d=>perDay()*d;
 const money=n=>n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:(n<100&&n%1)?2:0});
-const sumJobs=st=>jobs.filter(x=>x.s===st).reduce((a,x)=>a+payout(x.d),0);
+function earnedOf(x){return x.p!=null?x.p:payout(x.d)}
+const sumJobs=st=>jobs.filter(x=>x.s===st).reduce((a,x)=>a+(st==='done'?earnedOf(x):payout(x.d)),0);
 const saveRate=()=>{try{localStorage.setItem(RK,JSON.stringify(rate))}catch(e){}};
 function updateMe(){
   document.querySelectorAll('#pg-me .seg button').forEach(b=>b.classList.toggle('cur',b.dataset.u===rate.unit));
@@ -501,6 +568,61 @@ document.querySelectorAll('#pg-me .seg button').forEach(b=>b.onclick=()=>{
   saveRate();$('rv').value=rate.v||'';updateMe();
 });
 
+/* Shop */
+const HK='briefRoulette.shop';
+let shop={owned:[],spent:0},shopTab='c';
+try{const r=JSON.parse(localStorage.getItem(HK)||'null');if(r)shop={...shop,...r}}catch(e){}
+const own=id=>shop.owned.includes(id);
+const saveShop=()=>{try{localStorage.setItem(HK,JSON.stringify(shop))}catch(e){}};
+const earnedTotal=()=>sumJobs('done');
+const balance=()=>Math.max(0,earnedTotal()-shop.spent);
+function shopItems(){
+  const dots=c=>`<span class="dots">${c.pal.map(h=>`<i style="background:${h}"></i>`).join('')}</span>`;
+  if(shopTab==='c')return C.filter(c=>c.shop).map(c=>({id:c.id,price:c.price,name:c.n,html:`<div class="ihead">${logo(c,48)}<div><b>${c.n}</b><p>${c.ind}</p></div></div><p class="x">${c.tag}</p>${dots(c)}`}));
+  if(shopTab==='j')return J.filter(j=>j.shop).map(j=>({id:j.id,price:j.price,name:j.t,html:`<div class="ihead"><div><b>${j.t}</b></div></div><p class="x">${j.d.slice(0,3).join('. ')}.</p>`}));
+  return T.filter(t=>t[3]).map(t=>({id:t[3],price:t[2],name:t[1],html:`<div class="ihead"><span class="big">${t[1].split(' ')[0]}</span><div><b>${t[1]} deadline</b><p>${t[0]} days per job</p></div></div><p class="x">${rate.v>0?'At your rate, one job pays '+money(payout(t[0]))+'.':'Set your rate on the Me page to see what one job pays.'}</p>`}));
+}
+function renderShop(){
+  const bal=balance();
+  $('bal').textContent=money(bal);
+  $('balsub').textContent=`Earned ${money(earnedTotal())}. Spent ${money(shop.spent)}.`;
+  const nm={c:'Companies',j:'Jobs',t:'Deadlines'};
+  $('stabs').innerHTML=Object.keys(nm).map(k=>`<button class="tab${k===shopTab?' cur':''}" data-st="${k}">${nm[k]}</button>`).join('');
+  $('sgrid').innerHTML=shopItems().map(i=>{const o=own(i.id);
+    return `<div class="item${o?' own':''}">${i.html}<div class="ibuy"><span class="price">${money(i.price)}</span>${o?'<span class="tag">Owned</span>':`<button class="go buy" data-id="${i.id}" ${bal>=i.price?'':'disabled'}>${bal>=i.price?'Buy':'Need '+money(i.price-bal)+' more'}</button>`}</div></div>`}).join('');
+}
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,3200)}
+$('stabs').onclick=e=>{const b=e.target.closest('[data-st]');if(b){shopTab=b.dataset.st;renderShop()}};
+$('sgrid').onclick=e=>{
+  const b=e.target.closest('.buy');if(!b||b.disabled)return;
+  const i=shopItems().find(x=>x.id===b.dataset.id);
+  if(!i||own(i.id)||balance()<i.price)return;
+  shop.owned.push(i.id);shop.spent+=i.price;saveShop();renderShop();
+  toast(`${i.name} unlocked. It is now in your roulette.`);
+};
+
+/* Reset */
+const WORDS=['LIGHTHOUSE','MARIGOLD','COBALT','TIDEWATER','SILHOUETTE','OBSIDIAN','PARADIGM','MERIDIAN','VERMILION','SANDSTONE'];
+let rstWord='';
+function closeRst(){$('rst').hidden=true;document.body.style.overflow=''}
+$('rsb').onclick=()=>{
+  rstWord=rnd(WORDS);
+  $('rstcard').innerHTML=`<h2 id="rst-t">Reset Briefo?</h2><p>This erases all jobs, earnings, purchases, your rate and every preference. It cannot be undone. To confirm, type this word:</p><span class="word">${rstWord}</span><input id="rin" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Type the confirmation word"><div class="cbtn"><button class="ghost" id="rno" type="button">Cancel</button><button class="go danger" id="ryes" type="button" disabled>Reset everything</button></div>`;
+  $('rst').hidden=false;document.body.style.overflow='hidden';
+  const inp=$('rin'),yes=$('ryes');
+  inp.oninput=()=>{yes.disabled=inp.value.trim().toUpperCase()!==rstWord};
+  $('rno').onclick=closeRst;
+  $('rst').onclick=e=>{if(e.target===$('rst'))closeRst()};
+  yes.onclick=()=>{
+    if(inp.value.trim().toUpperCase()!==rstWord)return;
+    try{['briefRoulette.jobs','briefRoulette.rate','briefRoulette.settings','briefRoulette.theme','briefRoulette.shop'].forEach(k=>localStorage.removeItem(k))}catch(e){}
+    location.hash='#/';location.reload();
+  };
+  inp.onkeydown=e=>{if(e.key==='Enter'&&!yes.disabled)yes.click()};
+  inp.focus();
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('rst').hidden)closeRst()});
+
 /* Your Jobs */
 const KEY='briefRoulette.jobs';
 let jobs=[],filter='active';
@@ -518,7 +640,7 @@ function renderJobs(){
     if(x.s==='active'){const left=Math.ceil((due-Date.now())/864e5);meta=`${x.l} · due ${dt(due)} · `+(left>1?`${left} days left`:left===1?'1 day left':left===0?'due today':'overdue')}
     else meta=`${x.l} · ${x.s==='done'?'completed':'cancelled'} ${dt(x.u||x.at)}`;
     const acts=x.s==='active'?`<button class="ok" data-act="done" data-id="${x.id}">Mark as done</button><button data-act="cancelled" data-id="${x.id}">Cancel job</button>`:`<button data-act="active" data-id="${x.id}">Reopen</button><button data-act="remove" data-id="${x.id}">Remove</button>`;
-    return `<div class="job${x.s!=='active'?' dim':''}">${logo(c,48)}<div><b>${c.n}</b><p>${j.t}</p><p>${meta}${rate.v>0?' · <b class="m">'+money(payout(x.d))+'</b>':''}</p></div><div class="acts"><button data-act="view" data-id="${x.id}">View brief</button>${acts}</div></div>`}).join('')
+    return `<div class="job${x.s!=='active'?' dim':''}">${logo(c,48)}<div><b>${c.n}</b><p>${j.t}</p><p>${meta}${rate.v>0?' · <b class="m">'+money(x.s==='done'?earnedOf(x):payout(x.d))+'</b>':''}</p></div><div class="acts"><button data-act="view" data-id="${x.id}">View brief</button>${acts}</div></div>`}).join('')
   :`<p class="empty">${filter==='active'?'No active jobs. <a href="#/">Spin the roulette</a> and accept a brief.':'Nothing here yet.'}</p>`;
 }
 $('tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(b){filter=b.dataset.tab;renderJobs()}};
@@ -526,7 +648,7 @@ $('jlist').onclick=e=>{
   const b=e.target.closest('[data-act]');if(!b)return;
   const x=jobs.find(j=>j.id===b.dataset.id);if(!x)return;const a=b.dataset.act;
   if(a==='view'){render(C[x.ci],J[x.ji],[x.d,x.l],x.g,$('jview'),true,x.at);$('jview').scrollIntoView({behavior:'smooth',block:'start'});return}
-  if(a==='remove')jobs=jobs.filter(j=>j!==x);else{x.s=a;x.u=Date.now()}
+  if(a==='remove')jobs=jobs.filter(j=>j!==x);else{x.s=a;x.u=Date.now();if(a==='done'&&rate.v>0)x.p=payout(x.d);else delete x.p}
   persist();renderJobs();
   if(a==='done')celebrate(x);
 };
@@ -536,6 +658,7 @@ renderJobs();
 function brandA(c){const p=c.pal;let a=p[1],m=0;[1,2,3].forEach(i=>{const d=Math.abs(lum(p[i])-lum(p[0]));if(d>m){m=d;a=p[i]}});return a}
 function dur(ms){
   const m=Math.abs(ms)/6e4,h=m/60,d=h/24;
+  if(d>=540)return (Math.round(d/365*10)/10)+' years';
   if(d>=60)return Math.round(d/30)+' months';
   if(d>=14)return Math.round(d/7)+' weeks';
   if(d>=2)return Math.round(d)+' days';
@@ -615,10 +738,10 @@ document.addEventListener('keydown',e=>{
 
 /* Routing */
 function route(){
-  const h=location.hash,r=h.startsWith('#/jobs')?'jobs':h.startsWith('#/me')?'me':'home';
-  $('pg-home').hidden=r!=='home';$('pg-jobs').hidden=r!=='jobs';$('pg-me').hidden=r!=='me';
+  const h=location.hash,r=h.startsWith('#/jobs')?'jobs':h.startsWith('#/shop')?'shop':h.startsWith('#/me')?'me':'home';
+  $('pg-home').hidden=r!=='home';$('pg-jobs').hidden=r!=='jobs';$('pg-shop').hidden=r!=='shop';$('pg-me').hidden=r!=='me';
   document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('cur',a.dataset.r===r));
-  if(r==='jobs')renderJobs();if(r==='me')renderMe();
+  if(r==='jobs')renderJobs();if(r==='me')renderMe();if(r==='shop')renderShop();
   window.scrollTo(0,0);
 }
 addEventListener('hashchange',route);route();
