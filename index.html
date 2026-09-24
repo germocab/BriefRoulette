@@ -148,7 +148,41 @@ footer{margin-top:72px;padding-top:18px;border-top:1px solid var(--line);color:v
 .ver span{color:var(--mute);font-size:14px;display:block}
 .ver b{display:block;font-size:clamp(24px,3vw,32px);letter-spacing:-.03em;font-weight:600;margin-top:4px}
 @media (prefers-reduced-motion:reduce){#dbar{animation:none}}
+#cel{position:fixed;inset:0;z-index:100;display:flex;padding:20px;background:rgba(8,10,14,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fade .4s ease both;overflow-y:auto}
+#cel[hidden]{display:none}
+#cv{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.cel-card{position:relative;z-index:2;width:min(540px,100%);margin:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:34px 30px 26px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.4);animation:cpop .8s cubic-bezier(.2,1.25,.3,1) .1s both;overflow:hidden}
+.cel-card::before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-12deg);animation:shine 1.6s ease 1s 1 both;pointer-events:none}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes cpop{from{opacity:0;transform:translateY(30px) scale(.88)}to{opacity:1;transform:none}}
+@keyframes shine{from{left:-60%}to{left:140%}}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes bpop{from{transform:scale(0) rotate(-40deg)}to{transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes ring{0%{transform:scale(.7);opacity:.7}100%{transform:scale(2.3);opacity:0}}
+.badge{position:relative;width:84px;height:84px;margin:0 auto 18px}
+.badge svg{position:relative;width:100%;height:100%;animation:bpop .7s cubic-bezier(.2,1.4,.4,1) .25s both}
+.badge::before,.badge::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--bc);opacity:0;animation:ring 1.7s ease-out .35s 2}
+.badge::after{animation-delay:.75s}
+.badge path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .55s ease .8s forwards}
+.cel-card h2{margin:0;font-size:clamp(28px,5vw,38px);letter-spacing:-.035em;font-weight:600;line-height:1.05}
+.cel-card .sub{margin:8px 0 0;color:var(--mute)}
+.cel-card .rv{animation:up .6s ease both}
+.cearn{margin:22px 0 4px}
+.cearn span{color:var(--mute);font-size:14px;display:block}
+.cearn b{display:block;font-size:clamp(44px,9vw,64px);letter-spacing:-.045em;font-weight:600;line-height:1.05;font-variant-numeric:tabular-nums}
+.cearn a{color:var(--ink);font-size:14.5px}
+.cstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0}
+.cstats div{border:1px solid var(--line);border-radius:6px;padding:14px 8px;background:var(--bg)}
+.cstats b{display:block;font-size:19px;letter-spacing:-.02em;font-weight:600;line-height:1.2}
+.cstats span{display:block;color:var(--mute);font-size:12.5px;margin-top:4px;line-height:1.3}
+.cnote{display:flex;gap:14px;text-align:left;padding:16px;border-top:1px solid var(--line);margin-top:4px}
+.cnote p{margin:0 0 6px;font-size:14.5px}
+.cnote span{color:var(--mute);font-size:13.5px}
+.cbtn{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){#cel,.cel-card,.cel-card *{animation:none!important}.badge::before,.badge::after{display:none}.badge path{stroke-dashoffset:0}.cel-card::before{display:none}}
 @media (max-width:760px){
+.cstats{grid-template-columns:1fr}.cel-card{padding:28px 18px 20px}
 #dbar{flex-wrap:wrap;gap:10px}.dinfo{flex:1 1 55%}.dstats{gap:16px}.dbtn{width:100%}.dbtn button{flex:1}
 .me2{grid-template-columns:1fr}.set{align-items:flex-start}
 .hero{grid-template-columns:1fr;gap:16px;margin:32px 0 28px}
@@ -195,10 +229,11 @@ header .nav{gap:14px}
 <div class="stats" id="stats"></div></div>
 <div class="worth" id="worth"></div>
 <div class="me2"><div class="card set"><div><h3>Briefo details</h3><p>A bar that stays at the top of the page once a brief is generated. It shows the client, job, deadline and pay, with Accept and Decline buttons.</p></div><button class="tgl" id="tg" type="button" role="switch" aria-checked="true" aria-label="Briefo details"><i></i></button></div>
-<div class="card ver"><span>Briefo</span><b>Version 1.5</b></div></div></div>
+<div class="card ver"><span>Briefo</span><b>Version 1.7</b></div></div></div>
 <footer><span>Briefo</span><span>Clients are fictional. Your data stays in this browser.</span></footer>
 </div>
 
+<div id="cel" hidden><div class="cel-card" id="celcard" role="dialog" aria-modal="true" aria-labelledby="cel-t"></div><canvas id="cv" aria-hidden="true"></canvas></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const C=[
@@ -259,7 +294,7 @@ const J=[
 {t:"Design a magazine issue",d:["Grid and typographic system","Cover and three feature spreads","Photography art direction","Print specification sheet"]},
 {t:"Create a custom icon set",d:["Icon grid and stroke rules","40 core icons","Three sizes and two weights","SVG export and usage notes"]}
 ];
-const T=[[3,"3 days"],[5,"5 days"],[7,"1 week"],[10,"10 days"],[14,"2 weeks"],[21,"3 weeks"],[28,"4 weeks"],[1,"1 day"],[2,"2 days"],[35,"5 weeks"],[42,"6 weeks"],[60,"2 months"],[75,"10 weeks"],[90,"3 months"],[120,"4 months"],[150,"5 months"],[180,"6 months"]];
+const T=[[3,"3 days"],[5,"5 days"],[7,"1 week"],[10,"10 days"],[14,"2 weeks"],[21,"3 weeks"],[28,"4 weeks"],[1,"1 day"],[2,"2 days"],[35,"5 weeks"],[42,"6 weeks"],[60,"2 months"],[75,"10 weeks"],[90,"3 months"],[120,"4 months"],[150,"5 months"],[180,"6 months"],[365,"1 year"]];
 const G=["Increase brand recognition among the core audience","Improve clarity and reduce time to first action","Signal quality and reliability at first glance","Differentiate from the three closest competitors","Create a system the in-house team can extend","Lift conversion on the primary call to action","Build a consistent look across every touchpoint"];
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const $=id=>document.getElementById(id);
@@ -493,8 +528,90 @@ $('jlist').onclick=e=>{
   if(a==='view'){render(C[x.ci],J[x.ji],[x.d,x.l],x.g,$('jview'),true,x.at);$('jview').scrollIntoView({behavior:'smooth',block:'start'});return}
   if(a==='remove')jobs=jobs.filter(j=>j!==x);else{x.s=a;x.u=Date.now()}
   persist();renderJobs();
+  if(a==='done')celebrate(x);
 };
 renderJobs();
+
+/* Celebration */
+function brandA(c){const p=c.pal;let a=p[1],m=0;[1,2,3].forEach(i=>{const d=Math.abs(lum(p[i])-lum(p[0]));if(d>m){m=d;a=p[i]}});return a}
+function dur(ms){
+  const m=Math.abs(ms)/6e4,h=m/60,d=h/24;
+  if(d>=60)return Math.round(d/30)+' months';
+  if(d>=14)return Math.round(d/7)+' weeks';
+  if(d>=2)return Math.round(d)+' days';
+  if(h>=2)return Math.round(h)+' hours';
+  if(m>=2)return Math.round(m)+' minutes';
+  return 'Under 2 minutes';
+}
+const NOTES=[
+  (c,j,a,b)=>`Thank you for delivering ${j.toLowerCase()}. The ${a} and ${b} direction you brought is exactly what ${c.n} needed, and we are proud to put it out there.`,
+  (c,j,a,b)=>`We looked at everything twice and we love it. It feels ${a}, it feels ${b}, and it feels like us. Thank you for the care you put into this.`,
+  (c,j,a,b)=>`This is the kind of work that makes us call you first next time. You kept the spirit of "${c.tag}" alive in every detail. Thank you.`,
+  (c,j,a,b)=>`Our whole team is thrilled with the result. Everyone has already asked who made it. Thank you for making ${c.n} look this good.`
+];
+let cfRaf=0,lastFocus=null,cbTimer=0;
+function closeCel(){
+  $('cel').hidden=true;cancelAnimationFrame(cfRaf);clearTimeout(cbTimer);
+  const cv=$('cv');cv.getContext('2d').clearRect(0,0,cv.width,cv.height);
+  document.body.style.overflow='';
+  if(lastFocus&&document.contains(lastFocus))lastFocus.focus();
+}
+function confetti(cols){
+  const cv=$('cv'),g=cv.getContext('2d'),dpr=Math.min(2,window.devicePixelRatio||1);
+  const W=innerWidth,H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;g.setTransform(dpr,0,0,dpr,0,0);
+  const K=[...cols,'#f5c542','#ffffff'],P=[],t0=performance.now();let last=t0,rain=0,ei=0;
+  const R=(a,b)=>a+Math.random()*(b-a);
+  const burst=(x,y,ang,sp,n,v)=>{for(let i=0;i<n;i++){const a=ang+R(-sp,sp),s=R(v*.5,v);P.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,w:R(6,11),h:R(3,6),r:R(0,6.28),vr:R(-.3,.3),c:K[Math.floor(Math.random()*K.length)],dot:Math.random()<.25,ph:R(0,6.28)})}};
+  const evs=[[150,()=>{burst(0,H,-1.05,.45,90,22);burst(W,H,-2.09,.45,90,22)}],[650,()=>burst(W/2,H*.45,-1.57,3.14,130,15)],[1300,()=>{burst(0,H,-.9,.4,60,23);burst(W,H,-2.24,.4,60,23)}]];
+  const frame=now=>{
+    const dt=Math.min(3,(now-last)/16.67),el=now-t0;last=now;
+    while(ei<evs.length&&el>=evs[ei][0])evs[ei++][1]();
+    if(el>1600&&el<4200){rain+=dt;if(rain>=2){rain=0;burst(R(0,W),-10,1.57,.5,3,4)}}
+    g.clearRect(0,0,W,H);
+    for(let i=P.length-1;i>=0;i--){
+      const p=P[i];p.vx*=Math.pow(.985,dt);p.vy=p.vy*Math.pow(.985,dt)+.32*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;p.ph+=.1*dt;
+      if(p.y>H+30){P.splice(i,1);continue}
+      g.save();g.translate(p.x,p.y);g.rotate(p.r);g.fillStyle=p.c;
+      if(p.dot){g.beginPath();g.arc(0,0,p.h*.8,0,6.28);g.fill()}else{g.scale(1,Math.cos(p.ph));g.fillRect(-p.w/2,-p.h/2,p.w,p.h)}
+      g.restore();
+    }
+    if(P.length||ei<evs.length||el<4200)cfRaf=requestAnimationFrame(frame);else g.clearRect(0,0,W,H);
+  };
+  cfRaf=requestAnimationFrame(frame);
+}
+function countUp(el,to){
+  const t0=performance.now(),D=1500,f=n=>{const k=Math.min(1,(n-t0)/D);el.textContent=money(to*(1-Math.pow(1-k,3)));if(k<1)cfRaf2=requestAnimationFrame(f)};
+  cfRaf2=requestAnimationFrame(f);
+}
+let cfRaf2=0;
+function celebrate(x){
+  const c=C[x.ci],j=J[x.ji],a=brandA(c),now=Date.now(),due=x.at+x.d*864e5,diff=due-now,calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const early=diff>36e5,late=diff<-36e5;
+  const deliv=early?[dur(diff),'ahead of the deadline']:late?[dur(diff),'after the deadline']:['On time','right at the deadline'];
+  const doneN=jobs.filter(y=>y.s==='done').length;
+  const note=NOTES[Math.floor(Math.random()*NOTES.length)](c,j.t,c.tone[0].toLowerCase(),c.tone[1].toLowerCase());
+  const earn=rate.v>0?money(payout(x.d)):null;
+  const dl=n=>calm?'':`style="animation-delay:${n}s"`;
+  $('celcard').innerHTML=`<div class="badge" style="--bc:${a}"><svg viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="40" fill="${a}"/><path d="M26 43l11 11 21-23" fill="none" stroke="${c.pal[0]}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/></svg></div>
+  <h2 id="cel-t" class="rv" ${dl(.5)}>Congratulations!</h2>
+  <p class="sub rv" ${dl(.6)}>You delivered ${j.t.toLowerCase()} for ${c.n}.</p>
+  <div class="cearn rv" ${dl(.8)}>${earn?`<span>You earned</span><b id="cm">${calm?earn:'$0'}</b>`:'<a href="#/me">Set your rate on the Me page</a> to see what this job paid.'}</div>
+  <div class="cstats rv" ${dl(1)}><div><b>${deliv[0]}</b><span>${deliv[1]}</span></div><div><b>${dur(now-x.at)}</b><span>time worked, of ${x.l} planned</span></div><div><b>${doneN}</b><span>${doneN===1?'job':'jobs'} completed${rate.v>0?', '+money(sumJobs('done'))+' earned':''}</span></div></div>
+  <div class="cnote rv" ${dl(1.2)}>${logo(c,36)}<div><p>"${note}"</p><span>The ${c.n} team</span></div></div>
+  <div class="cbtn rv" ${dl(1.4)}><button class="ghost" id="cx" type="button">Close</button><button class="go" id="cdone" type="button">See done jobs</button></div>`;
+  lastFocus=document.activeElement;
+  $('cel').hidden=false;document.body.style.overflow='hidden';
+  $('cx').onclick=closeCel;
+  $('cdone').onclick=()=>{filter='done';renderJobs();closeCel()};
+  $('cel').onclick=e=>{if(e.target===$('cel'))closeCel()};
+  $('cdone').focus();
+  if(!calm){confetti(c.pal);if(earn)cbTimer=setTimeout(()=>countUp($('cm'),payout(x.d)),900)}
+}
+document.addEventListener('keydown',e=>{
+  if($('cel').hidden)return;
+  if(e.key==='Escape')closeCel();
+  if(e.key==='Tab'){const f=[$('cx'),$('cdone')],i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?-1:1)+2)%2].focus()}
+});
 
 /* Routing */
 function route(){
