@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Brief Roulette</title>
+<title>Briefo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -31,7 +31,7 @@ h1{font-size:clamp(34px,6vw,64px);line-height:1.02;letter-spacing:-.035em;font-w
 -webkit-mask-image:linear-gradient(transparent 0,#000 18%,#000 82%,transparent 100%);mask-image:linear-gradient(transparent 0,#000 18%,#000 82%,transparent 100%)}
 .strip{will-change:transform}
 .it{height:var(--h);display:flex;align-items:center;font-weight:600;letter-spacing:-.03em;line-height:1.08;font-size:clamp(26px,3.6vw,42px)}
-.reel.job .it{font-size:clamp(19px,2.2vw,26px);letter-spacing:-.02em}
+.reel.rjob .it{font-size:clamp(19px,2.2vw,26px);letter-spacing:-.02em}
 .reel.time .it{font-size:clamp(26px,3vw,36px)}
 .ph{color:var(--line)}
 .bar{display:flex;gap:14px;align-items:center;margin:22px 0 0}
@@ -145,13 +145,13 @@ header .nav{gap:14px}
 </head>
 <body>
 <div class="wrap">
-<header><b>Brief Roulette</b><nav class="nav"><a href="#/" data-r="home">Roulette</a><a href="#/jobs" data-r="jobs">Your Jobs <em id="jc">0</em></a><a href="#/me" data-r="me">Me</a><button class="ghost sm" id="th" type="button">Dark mode</button></nav></header>
+<header><b>Briefo</b><nav class="nav"><a href="#/" data-r="home">Roulette</a><a href="#/jobs" data-r="jobs">Your Jobs <em id="jc">0</em></a><a href="#/me" data-r="me">Me</a><button class="ghost sm" id="th" type="button">Dark mode</button></nav></header>
 <div id="pg-home"><div class="hero"><h1>Spin for your next brief.</h1>
 <p class="lede">A fictional client, a job and a deadline are drawn at random. Then the full brief is written for you: goals, palette, tone and schedule.</p></div>
 
 <div class="rig" id="rig">
 <div class="reel" id="r0"><small>Client <i></i></small><div class="win"><div class="strip"><div class="it ph">–</div></div></div></div>
-<div class="reel job" id="r1"><small>Job <i></i></small><div class="win"><div class="strip"><div class="it ph">–</div></div></div></div>
+<div class="reel rjob" id="r1"><small>Job <i></i></small><div class="win"><div class="strip"><div class="it ph">–</div></div></div></div>
 <div class="reel time" id="r2"><small>Deadline <i></i></small><div class="win"><div class="strip"><div class="it ph">–</div></div></div></div>
 </div>
 <div class="bar"><button class="go" id="go">Spin brief</button><span class="status" id="st">Ready.</span></div>
@@ -169,7 +169,7 @@ header .nav{gap:14px}
 <p class="hint" id="eq"></p></div>
 <div class="stats" id="stats"></div></div>
 <div class="worth" id="worth"></div></div>
-<footer><span>Brief Roulette</span><span>Clients are fictional. Your data stays in this browser.</span></footer>
+<footer><span>Briefo</span><span>Clients are fictional. Your data stays in this browser.</span></footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -429,7 +429,7 @@ const LBL={active:'Active',done:'Done',cancelled:'Cancelled'};
 function renderJobs(){
   $('jc').textContent=jobs.filter(x=>x.s==='active').length;
   $('tabs').innerHTML=Object.keys(LBL).map(k=>`<button class="tab${k===filter?' cur':''}" data-tab="${k}">${LBL[k]} <em>${jobs.filter(x=>x.s===k).length}</em></button>`).join('');
-  $('tabs').insertAdjacentHTML('beforeend',`<span class="pipe">${rate.v>0?'In progress: <b>'+money(sumJobs('active'))+'</b>':'<a href="#/me">Set your rate</a> to see earnings'}</span>`);
+  $('tabs').insertAdjacentHTML('beforeend',`<span class="pipe">${filter==='cancelled'?'':rate.v>0?(filter==='done'?'Total earned: <b>':'In progress: <b>')+money(sumJobs(filter==='done'?'done':'active'))+'</b>':'<a href="#/me">Set your rate</a> to see earnings'}</span>`);
   const list=jobs.filter(x=>x.s===filter).sort((a,b)=>filter==='active'?(a.at+a.d*864e5)-(b.at+b.d*864e5):(b.u||b.at)-(a.u||a.at));
   $('jlist').innerHTML=list.length?list.map(x=>{
     const c=C[x.ci],j=J[x.ji],due=x.at+x.d*864e5;let meta;
