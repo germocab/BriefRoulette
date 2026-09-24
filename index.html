@@ -125,7 +125,32 @@ header{gap:16px;flex-wrap:wrap}
 .worth{display:grid;grid-template-columns:repeat(4,1fr);margin-top:28px;border-top:1px solid var(--ink)}
 .worth div{padding:18px 16px 0 0}
 footer{margin-top:72px;padding-top:18px;border-top:1px solid var(--line);color:var(--mute);font-size:13.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#brief{scroll-margin-top:84px}
+#dbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:40;margin-top:20px;display:flex;align-items:center;gap:16px;padding:10px 14px;background:var(--panel);border:1px solid var(--ink);border-radius:6px;animation:in .4s ease both}
+#dbar[hidden]{display:none}
+#dbar .logo{border-radius:8px}
+.dinfo{flex:1;min-width:0;display:flex;flex-direction:column}
+.dinfo b,.dinfo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dinfo b{font-weight:600;letter-spacing:-.01em}.dinfo span{color:var(--mute);font-size:13.5px}
+.dstats{display:flex;gap:24px}
+.dstats span{display:block;color:var(--mute);font-size:12.5px;line-height:1.2}
+.dstats b{font-weight:600;font-size:16px}.dstats a{color:var(--ink)}
+.dbtn{display:flex;gap:8px}
+.dbtn .go,.dbtn .ghost{min-height:38px;padding:8px 16px;font-size:14.5px}
+.dok{font-size:14.5px}.dok a{color:var(--ink)}
+.me2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;margin-top:24px}
+.set{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.set h3{margin:0 0 6px}.set p{margin:0;color:var(--mute);font-size:14.5px;max-width:52ch}
+.tgl{flex:none;width:46px;height:26px;border-radius:99px;border:1px solid var(--line);background:var(--bg);position:relative;padding:0}
+.tgl i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--mute);transition:transform .2s,background .2s}
+.tgl[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
+.tgl[aria-checked="true"] i{transform:translateX(20px);background:var(--accent-ink)}
+.ver span{color:var(--mute);font-size:14px;display:block}
+.ver b{display:block;font-size:clamp(24px,3vw,32px);letter-spacing:-.03em;font-weight:600;margin-top:4px}
+@media (prefers-reduced-motion:reduce){#dbar{animation:none}}
 @media (max-width:760px){
+#dbar{flex-wrap:wrap;gap:10px}.dinfo{flex:1 1 55%}.dstats{gap:16px}.dbtn{width:100%}.dbtn button{flex:1}
+.me2{grid-template-columns:1fr}.set{align-items:flex-start}
 .hero{grid-template-columns:1fr;gap:16px;margin:32px 0 28px}
 .me{grid-template-columns:1fr}.worth{grid-template-columns:1fr 1fr}
 header .nav{gap:14px}
@@ -146,7 +171,7 @@ header .nav{gap:14px}
 <body>
 <div class="wrap">
 <header><b>Briefo</b><nav class="nav"><a href="#/" data-r="home">Roulette</a><a href="#/jobs" data-r="jobs">Your Jobs <em id="jc">0</em></a><a href="#/me" data-r="me">Me</a><button class="ghost sm" id="th" type="button">Dark mode</button></nav></header>
-<div id="pg-home"><div class="hero"><h1>Spin for your next brief.</h1>
+<div id="pg-home"><div id="dbar" hidden role="region" aria-label="Briefo details"></div><div class="hero"><h1>Spin for your next brief.</h1>
 <p class="lede">A fictional client, a job and a deadline are drawn at random. Then the full brief is written for you: goals, palette, tone and schedule.</p></div>
 
 <div class="rig" id="rig">
@@ -168,7 +193,9 @@ header .nav{gap:14px}
 <label class="fld">Hours in a workday<div class="inp"><input id="rh" type="number" min="1" max="24" step="1" inputmode="numeric"><em>hours</em></div></label>
 <p class="hint" id="eq"></p></div>
 <div class="stats" id="stats"></div></div>
-<div class="worth" id="worth"></div></div>
+<div class="worth" id="worth"></div>
+<div class="me2"><div class="card set"><div><h3>Briefo details</h3><p>A bar that stays at the top of the page once a brief is generated. It shows the client, job, deadline and pay, with Accept and Decline buttons.</p></div><button class="tgl" id="tg" type="button" role="switch" aria-checked="true" aria-label="Briefo details"><i></i></button></div>
+<div class="card ver"><span>Briefo</span><b>Version 1.5</b></div></div></div>
 <footer><span>Briefo</span><span>Clients are fictional. Your data stays in this browser.</span></footer>
 </div>
 
@@ -252,10 +279,11 @@ function spin(id,labels,target,ms){
   return sleep(ms+100).then(()=>reel.classList.add('on'));
 }
 
+let curBar=null;
 let busy=false;
 $('go').onclick=async()=>{
   if(busy)return;busy=true;$('go').disabled=true;$('go').blur();
-  $('brief').classList.remove('show');
+  $('brief').classList.remove('show');$('dbar').hidden=true;curBar=null;
   ['r0','r1','r2'].forEach(i=>$(i).classList.remove('on'));
   const c=rnd(C),j=rnd(J),t=rnd(T);
   $('st').textContent='Choosing client…';
@@ -301,12 +329,19 @@ function render(c,j,t,goals,el,saved,at){el=el||$("brief");at=at||Date.now();
   q('.pdf').onclick=e=>makePdf(c,j,t,goals,ph,days,fmt,e.currentTarget,at);
   q('.cal').href=calUrl(c,j,t,goals,at);
   if(!saved){
+    curBar=()=>{
+      const bar=$('dbar'),pend=!!q('.acc');
+      bar.innerHTML=`${logo(c,36)}<div class="dinfo"><b>${c.n}</b><span>${j.t}</span></div><div class="dstats"><div><span>Deadline</span><b>${t[1]}</b></div><div><span>Pay</span><b>${rate.v>0?money(payout(D)):'<a href="#/me">Set rate</a>'}</b></div></div><div class="dbtn">${pend?'<button class="go dacc" type="button">Accept job</button><button class="ghost ddec" type="button">Decline job</button>':'<span class="dok">Accepted. <a href="#/jobs">Open Your Jobs</a></span>'}</div>`;
+      bar.hidden=false;
+      if(pend){bar.querySelector('.dacc').onclick=()=>q('.acc').click();bar.querySelector('.ddec').onclick=()=>q('.dec').click()}
+    };
+    if(settings.details)curBar();
     q('.acc').onclick=()=>{
       jobs.unshift({id:'j'+at,ci:C.indexOf(c),ji:J.indexOf(j),d:t[0],l:t[1],g:goals,at,s:'active'});persist();renderJobs();
-      q('.acc').remove();q('.dec').remove();
+      q('.acc').remove();q('.dec').remove();if(curBar&&!$('dbar').hidden)curBar();
       q('.note').innerHTML='Job accepted. It is saved in <a href="#/jobs">Your Jobs</a>.';
     };
-    q('.dec').onclick=()=>{el.classList.remove('show');el.innerHTML='';$('st').textContent='Job declined. Spin again for a new brief.';window.scrollTo({top:0,behavior:'smooth'})};
+    q('.dec').onclick=()=>{$('dbar').hidden=true;curBar=null;el.classList.remove('show');el.innerHTML='';$('st').textContent='Job declined. Spin again for a new brief.';window.scrollTo({top:0,behavior:'smooth'})};
   }else q('.cls').onclick=()=>{el.classList.remove('show');el.innerHTML=''};
 }
 function calUrl(c,j,t,goals,at){
@@ -392,6 +427,18 @@ let saved=null;try{saved=localStorage.getItem('briefRoulette.theme')}catch(e){}
 setTheme(saved||curTheme(),false);
 th.onclick=()=>setTheme(curTheme()==='dark'?'light':'dark',true);
 
+/* Settings */
+const SK='briefRoulette.settings';
+let settings={details:true};
+try{const r=JSON.parse(localStorage.getItem(SK)||'null');if(r)settings={...settings,...r}}catch(e){}
+$('tg').onclick=()=>{
+  settings.details=!settings.details;
+  try{localStorage.setItem(SK,JSON.stringify(settings))}catch(e){}
+  $('tg').setAttribute('aria-checked',String(settings.details));
+  if(!settings.details)$('dbar').hidden=true;
+  else if(curBar&&$('brief').classList.contains('show'))curBar();
+};
+
 /* Rate */
 const RK='briefRoulette.rate';
 let rate={v:0,unit:'day',h:8};
@@ -411,7 +458,7 @@ function updateMe(){
   $('stats').innerHTML=cells.map(c=>`<div class="stat"><span>${c[0]}</span><b>${c[1]}</b><em>${c[2]}</em></div>`).join('');
   $('worth').innerHTML=[['1 hour',perHour()],['1 day',perDay()],['1 week',perDay()*7],['1 month',perDay()*30]].map(w=>`<div><span>${w[0]}</span><b>${money(w[1])}</b></div>`).join('');
 }
-function renderMe(){$('rv').value=rate.v||'';$('rh').value=rate.h;updateMe()}
+function renderMe(){$('tg').setAttribute('aria-checked',String(settings.details));$('rv').value=rate.v||'';$('rh').value=rate.h;updateMe()}
 $('rv').oninput=e=>{rate.v=Math.max(0,parseFloat(e.target.value)||0);saveRate();updateMe()};
 $('rh').oninput=e=>{rate.h=Math.min(24,Math.max(1,parseFloat(e.target.value)||8));saveRate();updateMe()};
 document.querySelectorAll('#pg-me .seg button').forEach(b=>b.onclick=()=>{
