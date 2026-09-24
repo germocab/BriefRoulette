@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brief Roulette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eceef1;--panel:#f7f8fa;--ink:#13161b;--mute:#6b727d;--line:#d5d9df;--accent:#2f4bff;--accent-ink:#fff;
+--f:'Inter Tight',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1013;--panel:#161a1f;--ink:#eef0f3;--mute:#8b929d;--line:#282d35;--accent:#6f86ff;--accent-ink:#0b0d12}}
+:root[data-theme="dark"]{--bg:#0e1013;--panel:#161a1f;--ink:#eef0f3;--mute:#8b929d;--line:#282d35;--accent:#6f86ff;--accent-ink:#0b0d12}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-feature-settings:'tnum';-webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding:40px 24px 80px}
+header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:18px}
+header b{font-weight:600;letter-spacing:-.01em}
+header span{color:var(--mute);font-size:14px}
+h1{font-size:clamp(34px,6vw,64px);line-height:1.02;letter-spacing:-.035em;font-weight:600;margin:56px 0 14px;max-width:14ch}
+.lede{color:var(--mute);max-width:52ch;margin:0 0 40px;font-size:17px}
+.rig{display:grid;grid-template-columns:1.15fr 1.5fr .8fr;border:1px solid var(--line);background:var(--panel);border-radius:6px;overflow:hidden}
+.reel{border-right:1px solid var(--line);padding:16px 22px 8px;position:relative;min-width:0}
+.reel:last-child{border-right:0}
+.reel small{color:var(--mute);font-size:13px;display:flex;justify-content:space-between}
+.reel small i{font-style:normal;width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .3s}
+.reel.on small i{background:var(--accent)}
+.win{--h:104px;height:var(--h);overflow:hidden;position:relative;margin-top:6px;
+-webkit-mask-image:linear-gradient(transparent 0,#000 18%,#000 82%,transparent 100%);mask-image:linear-gradient(transparent 0,#000 18%,#000 82%,transparent 100%)}
+.strip{will-change:transform}
+.it{height:var(--h);display:flex;align-items:center;font-weight:600;letter-spacing:-.03em;line-height:1.08;font-size:clamp(26px,3.6vw,42px)}
+.reel.job .it{font-size:clamp(19px,2.2vw,26px);letter-spacing:-.02em}
+.reel.time .it{font-size:clamp(26px,3vw,36px)}
+.ph{color:var(--line)}
+.bar{display:flex;gap:14px;align-items:center;margin:22px 0 0}
+button{font:inherit;cursor:pointer}
+.go{background:var(--accent);color:var(--accent-ink);border:0;border-radius:4px;padding:14px 26px;font-weight:600;font-size:16px}
+.go:disabled{opacity:.5;cursor:default}
+.ghost{background:none;border:1px solid var(--line);color:var(--ink);border-radius:4px;padding:13px 18px;font-size:15px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.status{color:var(--mute);font-size:14px}
+#brief{margin-top:64px;display:none}
+#brief.show{display:block;animation:in .6s ease both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.top{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end;border-bottom:1px solid var(--ink);padding-bottom:20px}
+.top h2{font-size:clamp(28px,4vw,44px);letter-spacing:-.03em;margin:0;font-weight:600;line-height:1.05}
+.top p{margin:6px 0 0;color:var(--mute)}
+.due{text-align:right}.due b{font-size:clamp(32px,4vw,48px);letter-spacing:-.03em;font-weight:600;display:block;line-height:1}
+.due span{color:var(--mute);font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 48px}
+.sec{padding:26px 0;border-bottom:1px solid var(--line);min-width:0}
+.sec.full{grid-column:1/-1}
+.sec h3{margin:0 0 12px;font-size:15px;font-weight:600}
+.sec ul{margin:0;padding:0;list-style:none}
+.sec li{padding:7px 0;border-top:1px solid var(--line);font-size:15.5px;max-width:64ch}
+.sec li:first-child{border-top:0;padding-top:0}
+.sec p{margin:0;max-width:64ch;font-size:15.5px}
+.pal{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.sw{border:0;min-height:120px;padding:12px;text-align:left;display:flex;flex-direction:column;justify-content:flex-end;font-size:13px;line-height:1.3}
+.sw b{font-weight:600}
+.tl{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}
+.ph1{border-top:3px solid var(--ink);padding-top:10px;font-size:14px}
+.ph1 b{display:block;font-size:18px;letter-spacing:-.02em}
+.ph1 span{color:var(--mute)}
+.tone{display:flex;gap:8px;flex-wrap:wrap}
+.tone span{border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:14px}
+
+header{align-items:center}
+.nav{display:flex;gap:18px;align-items:center}
+.nav a{color:var(--ink);text-decoration:none;font-size:14.5px;font-weight:500}
+em{font-style:normal;color:var(--mute);font-variant-numeric:tabular-nums}
+.sm{padding:7px 14px;font-size:14px}
+.logo{flex:none;border-radius:12px;display:block}
+.brand{display:flex;gap:18px;align-items:center}
+#pg-jobs{margin-top:56px}#jview{display:none;margin:0 0 48px;padding-bottom:8px;border-bottom:1px solid var(--ink)}#jview.show{display:block;animation:in .6s ease both}.nav a.cur{font-weight:600;border-bottom:2px solid var(--ink)}a.ghost{text-decoration:none;color:var(--ink);display:inline-block;font-size:15px}.note{color:var(--mute);font-size:14px;margin:12px 0 0}.note a,.empty a{color:var(--ink)}
+#pg-jobs>h2{font-size:clamp(26px,3.4vw,36px);letter-spacing:-.03em;margin:0 0 6px;font-weight:600}
+#pg-jobs>p{color:var(--mute);margin:0 0 22px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;border-bottom:2px solid transparent;color:var(--mute);padding:10px 14px;font-size:15px;margin-bottom:-1px}
+.tab.cur{color:var(--ink);border-color:var(--ink);font-weight:600}
+.job{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line)}
+.job b{font-weight:600;font-size:17px;letter-spacing:-.01em}
+.job p{margin:2px 0 0;color:var(--mute);font-size:14.5px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.acts button{background:none;border:1px solid var(--line);color:var(--ink);border-radius:4px;padding:7px 12px;font-size:14px}
+.acts .ok{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.empty{color:var(--mute);padding:28px 0}
+.job.dim .logo{opacity:.5}
+header{gap:16px;flex-wrap:wrap}
+.nav{flex-wrap:wrap}
+.nav a{padding:4px 0;border-bottom:2px solid transparent}
+.nav a.cur{border-color:var(--ink)}
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:48px;align-items:end;margin:56px 0 36px}
+.hero h1{margin:0}.hero .lede{margin:0 0 6px}
+.go,.ghost{min-height:46px}.ghost.sm{min-height:34px}
+.ghost{display:inline-flex;align-items:center}
+.foot{margin-top:28px;display:grid;gap:14px}
+.decide,.tools{display:flex;gap:10px;flex-wrap:wrap}
+.decide+.tools{border-top:1px solid var(--line);padding-top:14px}
+.earn{display:block;margin-top:8px;color:var(--ink);font-size:15px}.earn strong{font-weight:600}.earn a{color:var(--ink)}
+.tabs{flex-wrap:wrap}
+.pipe{margin-left:auto;align-self:center;color:var(--mute);font-size:14px}.pipe b{color:var(--ink);font-weight:600}.pipe a{color:var(--ink)}
+.m{color:var(--ink);font-weight:600}
+.empty{border:1px dashed var(--line);border-radius:6px;text-align:center;padding:48px 20px;margin-top:24px}
+#pg-me{margin-top:56px}#pg-me>h2{font-size:clamp(26px,3.4vw,36px);letter-spacing:-.03em;margin:0 0 6px;font-weight:600}#pg-me>p{color:var(--mute);margin:0 0 28px}
+.me{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:24px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:26px}
+.card h3{margin:0 0 16px;font-size:16px;font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{background:none;border:0;padding:9px 18px;color:var(--mute);font-size:15px}
+.seg button.cur{background:var(--ink);color:var(--bg)}
+.fld{display:block;margin-top:20px;font-size:14px;color:var(--mute)}
+.inp{display:flex;align-items:center;gap:8px;margin-top:6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);padding:0 14px}
+.inp span{color:var(--mute)}
+.inp input{flex:1;min-width:0;border:0;background:none;color:var(--ink);font:inherit;font-size:24px;font-weight:600;padding:12px 0;outline:0;letter-spacing:-.02em}
+.inp:focus-within{border-color:var(--accent)}
+.hint{color:var(--mute);font-size:14px;margin:18px 0 0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px}
+.stat span,.worth span{color:var(--mute);font-size:14px;display:block}
+.stat b,.worth b{display:block;font-size:clamp(24px,3vw,32px);letter-spacing:-.03em;font-weight:600;line-height:1.2;margin-top:4px}
+.stat em{font-size:13.5px}
+.worth{display:grid;grid-template-columns:repeat(4,1fr);margin-top:28px;border-top:1px solid var(--ink)}
+.worth div{padding:18px 16px 0 0}
+footer{margin-top:72px;padding-top:18px;border-top:1px solid var(--line);color:var(--mute);font-size:13.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:760px){
+.hero{grid-template-columns:1fr;gap:16px;margin:32px 0 28px}
+.me{grid-template-columns:1fr}.worth{grid-template-columns:1fr 1fr}
+header .nav{gap:14px}
+.job{grid-template-columns:auto 1fr}.acts{grid-column:1/-1;justify-content:flex-start}
+.brand .logo{width:44px;height:44px}
+.wrap{padding:24px 16px 56px}
+.rig{grid-template-columns:1fr}
+.reel{border-right:0;border-bottom:1px solid var(--line)}.reel:last-child{border-bottom:0}
+.win{--h:76px}
+.grid{grid-template-columns:1fr}
+.pal{grid-template-columns:1fr 1fr 1fr}.sw{min-height:90px}
+.tl{grid-auto-flow:row}
+.due{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){#brief.show{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><b>Brief Roulette</b><nav class="nav"><a href="#/" data-r="home">Roulette</a><a href="#/jobs" data-r="jobs">Your Jobs <em id="jc">0</em></a><a href="#/me" data-r="me">Me</a><button class="ghost sm" id="th" type="button">Dark mode</button></nav></header>
+<div id="pg-home"><div class="hero"><h1>Spin for your next brief.</h1>
+<p class="lede">A fictional client, a job and a deadline are drawn at random. Then the full brief is written for you: goals, palette, tone and schedule.</p></div>
+
+<div class="rig" id="rig">
+<div class="reel" id="r0"><small>Client <i></i></small><div class="win"><div class="strip"><div class="it ph">–</div></div></div></div>
+<div class="reel job" id="r1"><small>Job <i></i></small><div class="win"><div class="strip"><div class="it ph">–</div></div></div></div>
+<div class="reel time" id="r2"><small>Deadline <i></i></small><div class="win"><div class="strip"><div class="it ph">–</div></div></div></div>
+</div>
+<div class="bar"><button class="go" id="go">Spin brief</button><span class="status" id="st">Ready.</span></div>
+
+<section id="brief" aria-live="polite"></section>
+</div>
+<div id="pg-jobs" hidden><h2>Your Jobs</h2><p>Accepted briefs are saved on this device. Active jobs are listed by due date, soonest first.</p>
+<section id="jview"></section>
+<div class="tabs" id="tabs"></div><div id="jlist"></div></div>
+<div id="pg-me" hidden><h2>Me</h2><p>Set what your time is worth. Every brief and job then shows what you would earn.</p>
+<div class="me"><div class="card"><h3>Your rate</h3>
+<div class="seg" role="group" aria-label="Rate unit"><button type="button" data-u="hour">Per hour</button><button type="button" data-u="day">Per day</button></div>
+<label class="fld">Rate in USD<div class="inp"><span>$</span><input id="rv" type="number" min="0" step="1" inputmode="decimal" placeholder="50"><em id="ru">/ day</em></div></label>
+<label class="fld">Hours in a workday<div class="inp"><input id="rh" type="number" min="1" max="24" step="1" inputmode="numeric"><em>hours</em></div></label>
+<p class="hint" id="eq"></p></div>
+<div class="stats" id="stats"></div></div>
+<div class="worth" id="worth"></div></div>
+<footer><span>Brief Roulette</span><span>Clients are fictional. Your data stays in this browser.</span></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const C=[
+{n:"ANME, Inc.",ind:"Anime streaming and merchandise",tag:"Every story, every season.",pal:["#1b1340","#ff4d7d","#7c5cff","#f4f1ff","#0d0a22"],tone:["Energetic","Playful","Bold"],aud:"Anime fans aged 16–30, mobile-first",like:["Dynamic angles and motion","Strong illustration"],avoid:["Corporate stock imagery","Muted grey layouts"]},
+{n:"Namsunk",ind:"Consumer electronics",tag:"Built to outlast the upgrade cycle.",pal:["#0a2540","#1e6bff","#a9c4e8","#f2f5f9","#e8b04a"],tone:["Precise","Trustworthy","Confident"],aud:"Tech buyers aged 25–45",like:["Product-led layouts","Clear spec hierarchy"],avoid:["Playful mascots","Cluttered comparison tables"]},
+{n:"Mango, Inc.",ind:"Fast fashion e-commerce",tag:"Wear the week.",pal:["#ff8a1f","#1a1a1a","#ffe9c7","#fffaf1","#2d7a4f"],tone:["Warm","Fresh","Social"],aud:"Style-driven shoppers aged 18–34",like:["Editorial photography","Quick checkout"],avoid:["Heavy text blocks","Cold colors"]},
+{n:"Chat LPT",ind:"AI assistant for lawyers",tag:"Read the fine print faster.",pal:["#14213d","#3a5a8c","#c9d6ea","#f6f7fa","#b08d57"],tone:["Serious","Reliable","Calm"],aud:"Legal professionals and paralegals",like:["Restrained typography","Clear citations UI"],avoid:["Robot imagery","Neon gradients"]},
+{n:"Verdalia",ind:"Plant-based meal kits",tag:"Dinner, grown up.",pal:["#204b3a","#8fc27a","#f3ead7","#fdfaf2","#d9663a"],tone:["Natural","Friendly","Honest"],aud:"Busy urban households",like:["Real food photography","Generous whitespace"],avoid:["Stock leaves clipart","Guilt-based messaging"]},
+{n:"Orbita Bank",ind:"Digital-only bank",tag:"Money that keeps pace.",pal:["#0b1020","#5b6cff","#22d3a6","#eef1fb","#8a93ad"],tone:["Clear","Modern","Secure"],aud:"Young professionals aged 22–40",like:["Data-forward interfaces","Plain language"],avoid:["Piggy banks","Legalese"]},
+{n:"Kōyo Coffee",ind:"Specialty coffee roaster",tag:"Slow roasted in small batches.",pal:["#2a1a12","#a8693b","#e9dcc9","#faf5ec","#5c7a5a"],tone:["Crafted","Quiet","Tactile"],aud:"Home brewers and cafe owners",like:["Textured packaging","Origin storytelling"],avoid:["Loud promotions","Glossy finishes"]},
+{n:"Halcyon Air",ind:"Regional airline",tag:"Arrive like you never left.",pal:["#0f3d6b","#37a7e6","#dff1fb","#ffffff","#f25c54"],tone:["Calm","Optimistic","Efficient"],aud:"Business and leisure travelers",like:["Aerial imagery","Fast booking flows"],avoid:["Clutter of deals","Stressful red alerts"]},
+{n:"Pulse & Pine",ind:"Outdoor fitness studio",tag:"Train where the air is good.",pal:["#16281f","#c6f23d","#e6ebe2","#f7f8f4","#4f6b58"],tone:["Athletic","Grounded","Motivating"],aud:"Active adults aged 25–40",like:["High-contrast photography","Schedule-first navigation"],avoid:["Body-shaming copy","Gym clichés"]},
+{n:"Lumen Labs",ind:"Climate-tech research",tag:"Measure it. Then move it.",pal:["#08201a","#2ecf8c","#c8f0dd","#f3f9f6","#f4b73f"],tone:["Rigorous","Hopeful","Open"],aud:"Investors, policymakers, scientists",like:["Clean data visualization","Long-form reading comfort"],avoid:["Globe-in-hands imagery","Vague claims"]},
+{n:"Tiny Orbit",ind:"Children's educational toys",tag:"Curiosity, delivered.",pal:["#2a2f8f","#ffcf33","#ff6b6b","#fff8e6","#3fc1a5"],tone:["Playful","Safe","Curious"],aud:"Parents of children aged 3–8",like:["Rounded shapes","Bright, honest photos"],avoid:["Sarcasm","Dark backgrounds"]},
+{n:"Foundry 9",ind:"Architecture and interiors",tag:"Space is the material.",pal:["#1c1c1c","#d9d4ca","#8a8377","#f5f3ee","#c4552d"],tone:["Refined","Minimal","Deliberate"],aud:"Developers and private clients",like:["Large imagery","Asymmetric layouts"],avoid:["Decorative effects","Template portfolios"]},
+{n:"Nimbus Cloud",ind:"Cloud infrastructure for startups",tag:"Scale without the drama.",pal:["#0c1b33","#4aa8ff","#cfe6ff","#f4f8fd","#ffb347"],tone:["Technical","Approachable","Fast"],aud:"Developers and CTOs at early-stage companies",like:["Diagram-driven explanations","Code-first visuals"],avoid:["Server-room stock photos","Jargon walls"]},
+{n:"Casa Ferro",ind:"Italian restaurant group",tag:"Fire, salt and patience.",pal:["#5a1a1a","#e8c9a0","#c0392b","#faf3e8","#3f5d3b"],tone:["Warm","Rustic","Generous"],aud:"Diners and families in urban centers",like:["Hand-drawn details","Candlelit photography"],avoid:["Checkered tablecloth clichés","Cold minimalism"]},
+{n:"Wren & Co.",ind:"Premium stationery and gifts",tag:"Write it down properly.",pal:["#233a4d","#9fb8c9","#f0e6d8","#fbf8f3","#d1633a"],tone:["Thoughtful","Tactile","Elegant"],aud:"Gift buyers and journaling enthusiasts",like:["Paper textures","Fine linework"],avoid:["Loud sales banners","Generic icon packs"]},
+{n:"Vantage Motors",ind:"Electric vehicle manufacturer",tag:"Drive what comes next.",pal:["#111418","#e6e9ee","#5f6b7a","#f5f6f8","#21d07a"],tone:["Sleek","Confident","Forward"],aud:"Early adopters and urban commuters aged 28-50",like:["Cinematic vehicle imagery","Restrained typography"],avoid:["Leaf and plug clichés","Crowded spec sheets"]},
+{n:"Solstice Spa",ind:"Wellness retreats",tag:"Rest is a practice.",pal:["#7a4a3a","#f0cdb0","#e9b8a0","#fbf1e8","#7d9a86"],tone:["Soothing","Grounded","Inviting"],aud:"Stressed professionals seeking a weekend reset",like:["Soft natural light","Slow, calm interactions"],avoid:["Buzzword wellness copy","Harsh contrast"]},
+{n:"Basalt Games",ind:"Indie game studio",tag:"Small team. Big worlds.",pal:["#1a1233","#8b5cf6","#f472b6","#f1ecff","#22d3ee"],tone:["Imaginative","Bold","Playful"],aud:"Core gamers and streamers aged 18-35",like:["Concept art","Expressive motion"],avoid:["Generic sci-fi grids","Corporate polish"]},
+{n:"Meridian Health",ind:"Telehealth platform",tag:"Care that comes to you.",pal:["#0e4d5c","#5ec9c0","#d6f2ee","#f5fbfa","#f0725c"],tone:["Caring","Clear","Trustworthy"],aud:"Adults managing everyday and chronic care",like:["Plain-language interfaces","Diverse, real people"],avoid:["Clinical coldness","Alarming red states"]},
+{n:"Ferrous Records",ind:"Independent vinyl label",tag:"Pressed to be played loud.",pal:["#1b1b1f","#d64545","#e8e6df","#f7f5f0","#e3b23c"],tone:["Raw","Authentic","Loud"],aud:"Collectors and music-scene regulars",like:["Screenprint textures","Oversized type"],avoid:["Slick gradients","Streaming-app aesthetics"]},
+{n:"Alto Homes",ind:"Real estate marketplace",tag:"Find the place that fits.",pal:["#2b3a2f","#b7c9a8","#e6efdc","#f8f8f2","#d98f4e"],tone:["Reassuring","Open","Practical"],aud:"First-time buyers and renters aged 25-40",like:["Bright interiors","Map-first search"],avoid:["Pushy urgency banners","Cluttered listings"]},
+{n:"Noctua Books",ind:"Independent bookstore",tag:"Books for the late hours.",pal:["#1e2140","#c9a86a","#e7e3f5","#faf8f2","#7f8de6"],tone:["Literary","Intimate","Curious"],aud:"Readers and local community members",like:["Serif-led typography","Staff recommendations"],avoid:["Big-box retail feel","Aggressive discounts"]}
+];
+const J=[
+{t:"Design a new website",d:["Sitemap and wireframes for 5 key pages","High-fidelity homepage and 2 inner pages","Responsive behavior for desktop and mobile","Basic component and style guide"]},
+{t:"Redesign the brand identity",d:["Logo and wordmark with 2 variations","Color and typography system","Brand usage rules (1-page)","3 application mockups"]},
+{t:"Design a mobile app",d:["Core user flow, 6 to 8 screens","Interactive prototype","Reusable UI kit","Onboarding sequence"]},
+{t:"Create a launch campaign",d:["Campaign concept and key visual","Social media set (6 formats)","Landing page hero","Short copy deck"]},
+{t:"Design the product packaging",d:["Primary pack design with dielines","Two flavor or variant extensions","Front, side and top mockups","Materials and print notes"]},
+{t:"Redesign the dashboard",d:["Audit of current pain points","Redesigned overview and 2 detail views","Data visualization patterns","Handoff-ready component specs"]},
+{t:"Build a pitch deck",d:["Narrative outline","12 to 15 designed slides","Custom chart and data slides","Editable master template"]},
+{t:"Design an e-commerce store",d:["Product listing and product detail pages","Cart and checkout flow","Mobile-first layout","Promotional banner system"]},
+{t:"Create an event identity",d:["Event name lockup and key visual","Signage and wayfinding samples","Digital invitation and ticket","Social templates"]},
+{t:"Design a design system",d:["Foundations: color, type, spacing","30+ documented components","Light and dark themes","Usage guidelines"]},
+{t:"Design a marketing newsletter",d:["Flexible email template system","Three sample issues","Header and module library","Dark-mode compatibility"]},
+{t:"Design a landing page",d:["Single-page layout with clear conversion path","Hero concept and key section designs","Mobile version","Two A/B headline treatments"]},
+{t:"Create a podcast brand identity",d:["Show name lockup and cover art","Episode artwork template","Audiogram and social clips","Website banner set"]},
+{t:"Design a social media kit",d:["Profile and cover assets","12 post templates","Story and reel frames","Quick usage guide"]},
+{t:"Design a mobile game interface",d:["HUD and menu screens","Icon and button set","Reward and progress states","Animated transitions spec"]},
+{t:"Redesign the onboarding flow",d:["Journey map of drop-off points","Redesigned 5-step flow","Empty and error states","Success metrics proposal"]},
+{t:"Design a menu and signage system",d:["Printed menu layout","Storefront and table signage","Takeaway packaging label","Seasonal insert template"]},
+{t:"Design an annual report",d:["Layout system and cover","Six data-heavy spreads","Chart and table styles","Digital summary version"]},
+{t:"Design a smartwatch interface",d:["Watch faces (3 variants)","Glanceable notification screens","Activity and health views","Micro-interaction notes"]},
+{t:"Create an animated logo sting",d:["Storyboard and style frames","5-second logo animation","Sound cue direction","Export in 3 aspect ratios"]},
+{t:"Build an illustration system",d:["Style rules and grid","Ten spot illustrations","Character or object library","Usage do's and don'ts"]},
+{t:"Design a subscription checkout",d:["Plan comparison screen","Checkout and payment flow","Confirmation and receipt emails","Cancellation flow"]},
+{t:"Design an in-store experience",d:["Floor plan concept","Signage and wayfinding","Display and shelf graphics","Moodboard and materials list"]},
+{t:"Write brand guidelines",d:["Brand story and voice","Logo, color and type rules","Photography direction","Layout and template examples"]},
+{t:"Design a conference website",d:["Schedule and speaker pages","Ticketing flow","Sponsor section","Mobile agenda view"]},
+{t:"Design a merchandise line",d:["Apparel graphics (5 pieces)","Tote bag and sticker set","Mockups on product","Print-ready files"]},
+{t:"Redesign the help center",d:["Information architecture","Search and article templates","Contact and escalation flow","Tone and content guidelines"]},
+{t:"Create a data-story infographic",d:["Narrative outline","Long-form infographic","Three shareable chart cards","Source and accessibility notes"]},
+{t:"Design a voice assistant identity",d:["Visual states for listening and thinking","Sound and motion principles","Companion app screens","Personality guidelines"]},
+{t:"Design a car dashboard interface",d:["Driver display layouts","Center screen navigation","Day and night themes","Safety and glance-time notes"]},
+{t:"Design a magazine issue",d:["Grid and typographic system","Cover and three feature spreads","Photography art direction","Print specification sheet"]},
+{t:"Create a custom icon set",d:["Icon grid and stroke rules","40 core icons","Three sizes and two weights","SVG export and usage notes"]}
+];
+const T=[[3,"3 days"],[5,"5 days"],[7,"1 week"],[10,"10 days"],[14,"2 weeks"],[21,"3 weeks"],[28,"4 weeks"],[1,"1 day"],[2,"2 days"],[35,"5 weeks"],[42,"6 weeks"],[60,"2 months"],[75,"10 weeks"],[90,"3 months"],[120,"4 months"],[150,"5 months"],[180,"6 months"]];
+const G=["Increase brand recognition among the core audience","Improve clarity and reduce time to first action","Signal quality and reliability at first glance","Differentiate from the three closest competitors","Create a system the in-house team can extend","Lift conversion on the primary call to action","Build a consistent look across every touchpoint"];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const $=id=>document.getElementById(id);
+const lum=h=>{const n=parseInt(h.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return(.299*r+.587*g+.114*b)/255};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+function spin(id,labels,target,ms){
+  const reel=$(id),win=reel.querySelector('.win'),strip=reel.querySelector('.strip');
+  const H=win.clientHeight,n=22+Math.floor(Math.random()*6);
+  let html='';for(let i=0;i<n;i++)html+=`<div class="it">${i===n-1?target:rnd(labels)}</div>`;
+  strip.style.transition='none';strip.style.transform='translateY(0)';strip.innerHTML=html;
+  void strip.offsetHeight;
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)ms=300;
+  strip.style.transition=`transform ${ms}ms cubic-bezier(.12,.7,.1,1)`;
+  strip.style.transform=`translateY(${-(n-1)*H}px)`;
+  reel.classList.remove('on');
+  return sleep(ms+100).then(()=>reel.classList.add('on'));
+}
+
+let busy=false;
+$('go').onclick=async()=>{
+  if(busy)return;busy=true;$('go').disabled=true;
+  $('brief').classList.remove('show');
+  ['r0','r1','r2'].forEach(i=>$(i).classList.remove('on'));
+  const c=rnd(C),j=rnd(J),t=rnd(T);
+  $('st').textContent='Choosing client…';
+  await spin('r0',C.map(x=>x.n),c.n,2000);
+  $('st').textContent='Choosing job…';
+  await spin('r1',J.map(x=>x.t),j.t,2000);
+  $('st').textContent='Setting deadline…';
+  await spin('r2',T.map(x=>x[1]),t[1],2200);
+  $('st').textContent='Brief ready.';
+  const goals=[...G].sort(()=>Math.random()-.5).slice(0,3);
+  render(c,j,t,goals);
+  busy=false;$('go').disabled=false;$('go').textContent='Spin again';
+  $('brief').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
+};
+
+const CONS=["Use the palette above as your base","Deliver one clear primary direction, not options","Explain key decisions in a short written rationale"];
+function render(c,j,t,goals,el,saved,at){el=el||$("brief");at=at||Date.now();
+  const D=t[0];const earnTxt=rate.v>0?`You earn <strong>${money(payout(D))}</strong>`:'<a href="#/me">Set your rate</a> to see earnings';
+  const ph=[["Research and direction",.2],["Concepts",.25],["Production",.4],["Review and handoff",.15]];
+  const sh=D<=2,base=sh?D*24:D;let used=0;const days=ph.map((p,i)=>{let d=i<3?(sh?Math.max(1,Math.round(base*p[1])):Math.max(.5,Math.round(base*p[1]*2)/2)):base-used;used+=d;return d});
+  const fmt=d=>sh?d+" hours":d===1?"1 day":d>=14?(Math.round(d/7*2)/2)+" weeks":d+" days";
+  const roles=["Primary","Secondary","Accent","Surface","Ink"];
+  const sw=c.pal.map((h,i)=>`<button class="sw" style="background:${h};color:${lum(h)>.6?'#111':'#fff'}" data-hex="${h}" title="Copy ${h}"><b>${roles[i]}</b>${h.toUpperCase()}</button>`).join('');
+  el.innerHTML=`
+  <div class="top"><div class="brand">${logo(c,64)}<div><h2>${c.n}</h2><p>${c.ind}. “${c.tag}”</p></div></div>
+  <div class="due"><b>${t[1]}</b><span>to deliver: ${j.t.toLowerCase()}</span><em class="earn">${earnTxt}</em></div></div>
+  <div class="grid">
+  <div class="sec"><h3>The job</h3><p>${c.n} needs you to ${j.t.toLowerCase()}. The audience is: ${c.aud.toLowerCase()}. Work as if this will ship.</p></div>
+  <div class="sec"><h3>Goals</h3><ul>${goals.map(g=>`<li>${g}</li>`).join('')}</ul></div>
+  <div class="sec full"><h3>Color palette <span style="color:var(--mute);font-weight:400">(click a swatch to copy)</span></h3><div class="pal">${sw}</div></div>
+  <div class="sec"><h3>Brand tone</h3><div class="tone">${c.tone.map(x=>`<span>${x}</span>`).join('')}</div></div>
+  <div class="sec"><h3>Company preferences</h3><ul>${c.like.map(x=>`<li>Likes: ${x}</li>`).join('')}${c.avoid.map(x=>`<li>Avoid: ${x}</li>`).join('')}</ul></div>
+  <div class="sec"><h3>Deliverables</h3><ul>${j.d.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+  <div class="sec"><h3>Constraints</h3><ul>${CONS.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+  <div class="sec full"><h3>Suggested schedule</h3><div class="tl">${ph.map((p,i)=>`<div class="ph1"><b>${fmt(days[i])}</b><span>${p[0]}</span></div>`).join('')}</div></div>
+  </div>
+  <div class="foot">${saved?'':'<div class="decide"><button class="go acc" type="button">Accept job</button><button class="ghost dec" type="button">Decline job</button></div>'}<div class="tools"><button class="ghost cp" type="button">Copy brief as text</button><button class="ghost pdf" type="button">Download Brief as PDF</button><a class="ghost cal" target="_blank" rel="noopener">Save to Calendar</a>${saved?'<button class="ghost cls" type="button">Close</button>':''}</div></div><p class="note"></p>`;
+  el.classList.add('show');
+  const q=x=>el.querySelector(x);
+  el.querySelectorAll('.sw').forEach(b=>b.onclick=()=>copy(b.dataset.hex,b.querySelector('b'),"Copied"));
+  const txt=`BRIEF: ${c.n} (${c.ind})\nJob: ${j.t}\nDeadline: ${t[1]}\n${rate.v>0?"Estimated earnings: "+money(payout(D))+"\n":""}Audience: ${c.aud}\n\nGoals:\n${goals.map(g=>"- "+g).join("\n")}\n\nPalette: ${c.pal.join(", ")}\nTone: ${c.tone.join(", ")}\nLikes: ${c.like.join("; ")}\nAvoid: ${c.avoid.join("; ")}\n\nDeliverables:\n${j.d.map(x=>"- "+x).join("\n")}\n\nSchedule: ${ph.map((p,i)=>p[0]+" "+fmt(days[i])).join(", ")}`;
+  q('.cp').onclick=e=>copy(txt,e.currentTarget,"Copied");
+  q('.pdf').onclick=e=>makePdf(c,j,t,goals,ph,days,fmt,e.currentTarget,at);
+  q('.cal').href=calUrl(c,j,t,goals,at);
+  if(!saved){
+    q('.acc').onclick=()=>{
+      jobs.unshift({id:'j'+at,ci:C.indexOf(c),ji:J.indexOf(j),d:t[0],l:t[1],g:goals,at,s:'active'});persist();renderJobs();
+      q('.acc').remove();q('.dec').remove();
+      q('.note').innerHTML='Job accepted. It is saved in <a href="#/jobs">Your Jobs</a>.';
+    };
+    q('.dec').onclick=()=>{el.classList.remove('show');el.innerHTML='';$('st').textContent='Job declined. Spin again for a new brief.';window.scrollTo({top:0,behavior:'smooth'})};
+  }else q('.cls').onclick=()=>{el.classList.remove('show');el.innerHTML=''};
+}
+function calUrl(c,j,t,goals,at){
+  const due=new Date(at+t[0]*864e5),nx=new Date(due.getTime()+864e5);
+  const f=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  const det=`Client: ${c.n} (${c.ind})\nJob: ${j.t}\n${rate.v>0?'Estimated earnings: '+money(payout(t[0]))+'\n':''}Audience: ${c.aud}\n\nGoals:\n${goals.map(g=>'- '+g).join('\n')}\n\nDeliverables:\n${j.d.map(x=>'- '+x).join('\n')}\n\nPalette: ${c.pal.join(', ')}`;
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(`Due: ${j.t} for ${c.n}`)+'&dates='+f(due)+'/'+f(nx)+'&details='+encodeURIComponent(det);
+}
+async function makePdf(c,j,t,goals,ph,days,fmt,btn,at){
+  const old=btn.textContent,say=m=>{btn.textContent=m;setTimeout(()=>btn.textContent=old,1800)};
+  try{
+    const dl=window.claude?await claude.use("downloads"):null;
+    if(!dl||!window.jspdf)return say("PDF unavailable here");
+    const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'}),W=210,M=18,p=c.pal;let y=M;
+    const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+    const cl=x=>String(x).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/·/g,'-').replace(/[–—]/g,'-');
+    const need=h=>{if(y+h>285){doc.addPage();y=M}};
+    const head=x=>{need(16);y+=7;doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(20);doc.text(cl(x),M,y);y+=2.5;doc.setDrawColor(210);doc.line(M,y,W-M,y);y+=6};
+    const para=(x,ind=0)=>{doc.setFont('helvetica','normal');doc.setFontSize(10.5);doc.setTextColor(55);const L=doc.splitTextToSize(cl(x),W-2*M-ind);need(L.length*5);doc.text(L,M+ind,y);y+=L.length*5+1.5};
+    let a=p[1],m=0;[1,2,3].forEach(i=>{const d=Math.abs(lum(p[i])-lum(p[0]));if(d>m){m=d;a=p[i]}});
+    doc.setFillColor(...rgb(p[0]));doc.roundedRect(M,y,18,18,4,4,'F');
+    doc.setFillColor(...rgb(a));doc.circle(M+9,y+9,4.5,'F');doc.setFillColor(...rgb(p[4]));doc.circle(M+9,y+9,1.6,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(20);doc.text(cl(c.n),M+24,y+8);
+    doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(110);doc.text(cl(c.ind+'. "'+c.tag+'"'),M+24,y+15);
+    doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(20);doc.text(cl(t[1]),W-M,y+8,{align:'right'});
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(110);doc.text('to deliver',W-M,y+14,{align:'right'});
+    y+=24;doc.setDrawColor(20);doc.line(M,y,W-M,y);
+    head('The job');para(`${c.n} needs you to ${j.t.toLowerCase()}. The audience is: ${c.aud.toLowerCase()}. Work as if this will ship.`);
+    if(rate.v>0)para('Estimated earnings at your rate: '+money(payout(t[0])));head('Goals');goals.forEach(g=>para('- '+g,2));
+    head('Color palette');need(26);const w=(W-2*M)/5,roles=["Primary","Secondary","Accent","Surface","Ink"];
+    p.forEach((h,i)=>{doc.setFillColor(...rgb(h));doc.rect(M+i*w,y,w,24,'F');const lt=lum(h)>.6;doc.setTextColor(lt?20:255);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(roles[i],M+i*w+2.5,y+18);doc.setFont('helvetica','normal');doc.text(h.toUpperCase(),M+i*w+2.5,y+22)});
+    y+=26;
+    head('Brand tone');para(c.tone.join(', '));
+    head('Company preferences');c.like.forEach(x=>para('Likes: '+x,2));c.avoid.forEach(x=>para('Avoid: '+x,2));
+    head('Deliverables');j.d.forEach(x=>para('- '+x,2));
+    head('Constraints');CONS.forEach(x=>para('- '+x,2));
+    head('Suggested schedule');ph.forEach((q,i)=>para(`${q[0]}: ${fmt(days[i])}`,2));
+    y+=6;para(`Accepted ${new Date(at).toLocaleDateString()}. Due ${new Date(at+t[0]*864e5).toLocaleDateString()}.`);
+    await dl.save({filename:'brief-'+c.n.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.pdf',data:doc.output('arraybuffer')});
+    say('Saved');
+  }catch(e){if(e&&e.code==='declined')return;say("Could not save PDF")}
+}
+function copy(text,el,msg){
+  const old=el.textContent;
+  const done=()=>{el.textContent=msg;setTimeout(()=>el.textContent=old,1200)};
+  try{navigator.clipboard.writeText(text).then(done,done)}catch(e){done()}
+}
+
+const GL=[
+(a,b)=>`<path d="M20 7l3.5 9.5L33 20l-9.5 3.5L20 33l-3.5-9.5L7 20l9.5-3.5z" fill="${a}"/>`,
+(a,b)=>`<circle cx="20" cy="20" r="10" fill="none" stroke="${a}" stroke-width="4"/><circle cx="20" cy="20" r="3.5" fill="${b}"/>`,
+(a,b)=>`<path d="M10 30C10 16 18 10 30 10c0 14-6 20-20 20z" fill="${a}"/><path d="M13 27L26 14" stroke="${b}" stroke-width="2"/>`,
+(a,b)=>`<path d="M9 11h22v15H21l-6 5v-5H9z" fill="${a}"/><rect x="14" y="16" width="12" height="2.5" fill="${b}"/>`,
+(a,b)=>`<path d="M20 31V16" stroke="${b}" stroke-width="2"/><path d="M20 22c-8 0-10-6-10-10 6 0 10 3 10 10zM20 20c0-6 4-9 10-9 0 5-3 9-10 9z" fill="${a}"/>`,
+(a,b)=>`<circle cx="20" cy="20" r="6" fill="${a}"/><ellipse cx="20" cy="20" rx="13" ry="5" fill="none" stroke="${b}" stroke-width="2" transform="rotate(-25 20 20)"/>`,
+(a,b)=>`<ellipse cx="20" cy="20" rx="8" ry="12" fill="${a}" transform="rotate(30 20 20)"/><path d="M15 27c6-4 4-10 10-14" stroke="${b}" fill="none" stroke-width="2"/>`,
+(a,b)=>`<path d="M7 25L20 10l13 15-13-6z" fill="${a}"/><path d="M14 30h12" stroke="${b}" stroke-width="3"/>`,
+(a,b)=>`<path d="M20 8l12 22H8z" fill="${a}"/><path d="M12 25h5l2-5 3 8 2-3h4" stroke="${b}" fill="none" stroke-width="2"/>`,
+(a,b)=>`<path d="M9 26a11 11 0 0122 0z" fill="${a}"/><path d="M13 31h14" stroke="${b}" stroke-width="3"/>`,
+(a,b)=>`<circle cx="14" cy="22" r="6" fill="${a}"/><circle cx="27" cy="15" r="4.5" fill="${b}"/><circle cx="26" cy="28" r="3" fill="${a}"/>`,
+(a,b)=>`<rect x="10" y="10" width="14" height="14" fill="${a}"/><rect x="17" y="17" width="14" height="14" fill="${b}" opacity=".9"/>`,
+(a,b)=>`<path d="M12 28a5 5 0 010-10 7 7 0 0113-2 6 6 0 012 12z" fill="${a}"/><rect x="14" y="30" width="12" height="2" fill="${b}"/>`,
+(a,b)=>`<path d="M11 31V19a9 9 0 0118 0v12z" fill="${a}"/><circle cx="20" cy="23" r="3" fill="${b}"/>`,
+(a,b)=>`<path d="M9 13l5 16 6-11 6 11 5-16" stroke="${a}" fill="none" stroke-width="3.5" stroke-linejoin="round"/><circle cx="31" cy="9" r="2.5" fill="${b}"/>`,
+(a,b)=>`<path d="M8 12l12 18 12-18" stroke="${a}" stroke-width="4" fill="none"/><path d="M14 10h12" stroke="${b}" stroke-width="2.5"/>`,
+(a,b)=>`<circle cx="20" cy="20" r="6" fill="${a}"/><path d="M20 6v5M20 29v5M6 20h5M29 20h5" stroke="${b}" stroke-width="2.5"/>`,
+(a,b)=>`<path d="M20 8l10 6v12l-10 6-10-6V14z" fill="${a}"/><path d="M20 14l5 3v6l-5 3-5-3v-6z" fill="${b}"/>`,
+(a,b)=>`<circle cx="20" cy="20" r="11" fill="none" stroke="${a}" stroke-width="3"/><path d="M20 14v12M14 20h12" stroke="${b}" stroke-width="3"/>`,
+(a,b)=>`<circle cx="20" cy="20" r="11" fill="${a}"/><circle cx="20" cy="20" r="4" fill="${b}"/><circle cx="20" cy="20" r="7" fill="none" stroke="${b}" stroke-width=".8"/>`,
+(a,b)=>`<path d="M9 21L20 10l11 11v10H9z" fill="${a}"/><rect x="17" y="23" width="6" height="8" fill="${b}"/>`,
+(a,b)=>`<path d="M26 10a11 11 0 100 20 9 9 0 010-20z" fill="${a}"/><circle cx="28" cy="15" r="1.8" fill="${b}"/>`];
+function logo(c,s){
+  const p=c.pal;let a=p[1],m=0;
+  [1,2,3].forEach(i=>{const d=Math.abs(lum(p[i])-lum(p[0]));if(d>m){m=d;a=p[i]}});
+  return `<svg class="logo" width="${s}" height="${s}" viewBox="0 0 40 40" role="img" aria-label="${c.n} logo"><rect width="40" height="40" rx="9" fill="${p[0]}"/>${GL[C.indexOf(c)](a,p[4])}</svg>`;
+}
+
+/* Theme */
+const th=$('th'),root=document.documentElement;
+const curTheme=()=>root.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+function setTheme(t,save){root.dataset.theme=t;th.textContent=t==='dark'?'Light mode':'Dark mode';if(save)try{localStorage.setItem('briefRoulette.theme',t)}catch(e){}}
+let saved=null;try{saved=localStorage.getItem('briefRoulette.theme')}catch(e){}
+setTheme(saved||curTheme(),false);
+th.onclick=()=>setTheme(curTheme()==='dark'?'light':'dark',true);
+
+/* Rate */
+const RK='briefRoulette.rate';
+let rate={v:0,unit:'day',h:8};
+try{const r=JSON.parse(localStorage.getItem(RK)||'null');if(r)rate={...rate,...r}}catch(e){}
+const perDay=()=>rate.unit==='day'?rate.v:rate.v*rate.h;
+const perHour=()=>rate.unit==='day'?rate.v/rate.h:rate.v;
+const payout=d=>perDay()*d;
+const money=n=>n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:(n<100&&n%1)?2:0});
+const sumJobs=st=>jobs.filter(x=>x.s===st).reduce((a,x)=>a+payout(x.d),0);
+const saveRate=()=>{try{localStorage.setItem(RK,JSON.stringify(rate))}catch(e){}};
+function updateMe(){
+  document.querySelectorAll('#pg-me .seg button').forEach(b=>b.classList.toggle('cur',b.dataset.u===rate.unit));
+  $('ru').textContent=rate.unit==='day'?'/ day':'/ hour';
+  $('eq').textContent=rate.v>0?`That is ${money(perHour())} an hour and ${money(perDay())} a day, based on a ${rate.h}-hour workday.`:'Enter a rate to see what each job pays.';
+  const cn=jobs.filter(x=>x.s==='cancelled').length,live=jobs.filter(x=>x.s!=='cancelled');
+  const cells=[['Earned',money(sumJobs('done')),jobs.filter(x=>x.s==='done').length+' completed'],['In progress',money(sumJobs('active')),jobs.filter(x=>x.s==='active').length+' active'],['Cancelled',money(sumJobs('cancelled')),cn+' jobs'],['Average job',live.length?money(live.reduce((a,x)=>a+payout(x.d),0)/live.length):'$0',live.length+' accepted']];
+  $('stats').innerHTML=cells.map(c=>`<div class="stat"><span>${c[0]}</span><b>${c[1]}</b><em>${c[2]}</em></div>`).join('');
+  $('worth').innerHTML=[['1 hour',perHour()],['1 day',perDay()],['1 week',perDay()*7],['1 month',perDay()*30]].map(w=>`<div><span>${w[0]}</span><b>${money(w[1])}</b></div>`).join('');
+}
+function renderMe(){$('rv').value=rate.v||'';$('rh').value=rate.h;updateMe()}
+$('rv').oninput=e=>{rate.v=Math.max(0,parseFloat(e.target.value)||0);saveRate();updateMe()};
+$('rh').oninput=e=>{rate.h=Math.min(24,Math.max(1,parseFloat(e.target.value)||8));saveRate();updateMe()};
+document.querySelectorAll('#pg-me .seg button').forEach(b=>b.onclick=()=>{
+  const pd=perDay();rate.unit=b.dataset.u;rate.v=Math.round((rate.unit==='day'?pd:pd/rate.h)*100)/100;
+  saveRate();$('rv').value=rate.v||'';updateMe();
+});
+
+/* Your Jobs */
+const KEY='briefRoulette.jobs';
+let jobs=[],filter='active';
+try{jobs=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){jobs=[]}
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(jobs))}catch(e){}};
+const dt=ms=>new Date(ms).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+const LBL={active:'Active',done:'Done',cancelled:'Cancelled'};
+function renderJobs(){
+  $('jc').textContent=jobs.filter(x=>x.s==='active').length;
+  $('tabs').innerHTML=Object.keys(LBL).map(k=>`<button class="tab${k===filter?' cur':''}" data-tab="${k}">${LBL[k]} <em>${jobs.filter(x=>x.s===k).length}</em></button>`).join('');
+  $('tabs').insertAdjacentHTML('beforeend',`<span class="pipe">${rate.v>0?'In progress: <b>'+money(sumJobs('active'))+'</b>':'<a href="#/me">Set your rate</a> to see earnings'}</span>`);
+  const list=jobs.filter(x=>x.s===filter).sort((a,b)=>filter==='active'?(a.at+a.d*864e5)-(b.at+b.d*864e5):(b.u||b.at)-(a.u||a.at));
+  $('jlist').innerHTML=list.length?list.map(x=>{
+    const c=C[x.ci],j=J[x.ji],due=x.at+x.d*864e5;let meta;
+    if(x.s==='active'){const left=Math.ceil((due-Date.now())/864e5);meta=`${x.l} · due ${dt(due)} · `+(left>1?`${left} days left`:left===1?'1 day left':left===0?'due today':'overdue')}
+    else meta=`${x.l} · ${x.s==='done'?'completed':'cancelled'} ${dt(x.u||x.at)}`;
+    const acts=x.s==='active'?`<button class="ok" data-act="done" data-id="${x.id}">Mark as done</button><button data-act="cancelled" data-id="${x.id}">Cancel job</button>`:`<button data-act="active" data-id="${x.id}">Reopen</button><button data-act="remove" data-id="${x.id}">Remove</button>`;
+    return `<div class="job${x.s!=='active'?' dim':''}">${logo(c,48)}<div><b>${c.n}</b><p>${j.t}</p><p>${meta}${rate.v>0?' · <b class="m">'+money(payout(x.d))+'</b>':''}</p></div><div class="acts"><button data-act="view" data-id="${x.id}">View brief</button>${acts}</div></div>`}).join('')
+  :`<p class="empty">${filter==='active'?'No active jobs. <a href="#/">Spin the roulette</a> and accept a brief.':'Nothing here yet.'}</p>`;
+}
+$('tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(b){filter=b.dataset.tab;renderJobs()}};
+$('jlist').onclick=e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const x=jobs.find(j=>j.id===b.dataset.id);if(!x)return;const a=b.dataset.act;
+  if(a==='view'){render(C[x.ci],J[x.ji],[x.d,x.l],x.g,$('jview'),true,x.at);$('jview').scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(a==='remove')jobs=jobs.filter(j=>j!==x);else{x.s=a;x.u=Date.now()}
+  persist();renderJobs();
+};
+renderJobs();
+
+/* Routing */
+function route(){
+  const h=location.hash,r=h.startsWith('#/jobs')?'jobs':h.startsWith('#/me')?'me':'home';
+  $('pg-home').hidden=r!=='home';$('pg-jobs').hidden=r!=='jobs';$('pg-me').hidden=r!=='me';
+  document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('cur',a.dataset.r===r));
+  if(r==='jobs')renderJobs();if(r==='me')renderMe();
+  window.scrollTo(0,0);
+}
+addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>
