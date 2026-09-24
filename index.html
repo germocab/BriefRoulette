@@ -254,7 +254,7 @@ function spin(id,labels,target,ms){
 
 let busy=false;
 $('go').onclick=async()=>{
-  if(busy)return;busy=true;$('go').disabled=true;
+  if(busy)return;busy=true;$('go').disabled=true;$('go').blur();
   $('brief').classList.remove('show');
   ['r0','r1','r2'].forEach(i=>$(i).classList.remove('on'));
   const c=rnd(C),j=rnd(J),t=rnd(T);
@@ -458,6 +458,13 @@ function route(){
   window.scrollTo(0,0);
 }
 addEventListener('hashchange',route);route();
+document.addEventListener('keydown',e=>{
+  if(e.code!=='Space'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||$('pg-home').hidden)return;
+  if(e.target.closest&&e.target.closest('input,textarea,select,button,a,[contenteditable]'))return;
+  if(busy){e.preventDefault();return}
+  if($('brief').classList.contains('show'))return;
+  e.preventDefault();$('go').click();
+});
 </script>
 </body>
 </html>
